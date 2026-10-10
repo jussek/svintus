@@ -10,13 +10,13 @@ let cardSequence = 0;
 function card(kind: CardKind = "number", color: Color | null = "red", value = 4): Card {
   return { id: `test-${++cardSequence}`, kind, color, ...(kind === "number" ? { value } : {}) };
 }
-function lobby(): GameState {
+function lobby(playerCount = 6): GameState {
   let state = createGame("p0", "Игрок 0");
-  for (let n = 1; n < 6; n++) state = addPlayer(state, `p${n}`, `Игрок ${n}`);
+  for (let n = 1; n < playerCount; n++) state = addPlayer(state, `p${n}`, `Игрок ${n}`);
   return state;
 }
-function playing(): GameState {
-  const state = lobby();
+function playing(playerCount = 6): GameState {
+  const state = lobby(playerCount);
   state.status = "playing";
   state.round = 1;
   state.turnIndex = 0;
@@ -24,23 +24,24 @@ function playing(): GameState {
   state.turnDeadline = NOW + 5000;
   state.discardPile = [card()];
   state.drawPile = createDeck();
-  state.lastPlayedById = "p5";
+  state.lastPlayedById = state.players.at(-1)!.id;
   for (const p of state.players) p.hand = [card("number", "green", 2), card("number", "blue", 3)];
   return state;
 }
-function opening(kind: CardKind, color: Color | null = "red", chosenColor?: Color): GameState {
+function opening(kind: CardKind, color: Color | null = "red", chosenColor?: Color, playerCount = 6): GameState {
   const target = createDeck().findIndex((c) => c.kind === kind && c.color === color);
   assert.ok(target >= 0);
   const original = Math.random;
   let n = 103;
+  const openerIndex = 103 - 8 * playerCount;
   Math.random = () => {
     const iteration = n--;
-    // The opener is deck index55 after 48 cards are dealt from the top.
-    if (kind === "wild" && iteration === 103) return (55 + 0.1) / 104;
-    if (kind !== "wild" && iteration === 55) return (target + 0.1) / 56;
+    // Preserve the selected opener below the cards dealt from the top.
+    if (kind === "wild" && iteration === 103) return (openerIndex + 0.1) / 104;
+    if (kind !== "wild" && iteration === openerIndex) return (target + 0.1) / (openerIndex + 1);
     return 0.999999;
   };
-  try { return act(lobby(), "p0", { type: "start", color: chosenColor }, NOW); }
+  try { return act(lobby(playerCount), "p0", { type: "start", color: chosenColor }, NOW); }
   finally { Math.random = original; }
 }
 function allCards(state: GameState): Card[] {
@@ -59,8 +60,8 @@ test("the 104-card deck has correct copies and no Perekhryuk", () => {
   assert.equal(deck.filter((c) => c.kind === "wild" && c.color === null).length, 8);
 });
 
-test("six humans and the host are required to start", () => {
-  assert.throws(() => act(createGame("p0", "Хозяин"), "p0", { type: "start" }, NOW), /шесть/);
+test("two to six participants and the host are required to start", () => {
+  assert.throws(() => act(createGame("p0", "Хозяин"), "p0", { type: "start" }, NOW), /двух.*шести/);
   assert.throws(() => act(lobby(), "p1", { type: "start" }, NOW), /создатель/);
   assert.throws(() => addPlayer(lobby(), "p6", "Седьмой"), /шесть/);
   const state = opening("number");
@@ -71,6 +72,84 @@ test("six humans and the host are required to start", () => {
   assert.equal(state.discardPile.length, 1);
   assert.equal(allCards(state).length, 104);
   assert.throws(() => addPlayer(state, "p6", "Новый"), /началась/);
+  for (let count = 2; count <= 6; count++) {
+    const started = opening("number", "red", undefined, count);
+    assert.equal(started.status, "playing");
+    assert.equal(started.players.length, count);
+    assert.deepEqual(started.players.map((p) => p.hand.length), Array(count).fill(8));
+    assert.equal(started.drawPile.length, 103 - count * 8);
+    assert.equal(allCards(started).length, 104);
+  }
+});
+
+test("the host can add a bot and start a two-player game without altering the input", () => {
+  const original = createGame("p0", "Игрок");
+  const before = structuredClone(original);
+  const state = act(original, "p0", { type: "add_bot" }, NOW);
+  assert.deepEqual(original, before);
+  assert.equal(state.players.length, 2);
+  const bot = state.players[1];
+  assert.match(bot.id, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+  assert.match(bot.name, /\(бот\)/);
+  assert.equal(bot.isBot, true);
+  assert.deepEqual(bot.hand, []);
+  assert.equal(bot.score, 0);
+  assert.equal(publicGame(state, "p0").players[0].isBot, false);
+  assert.equal(publicGame(state, "p0").players[1].isBot, true);
+  const started = act(state, "p0", { type: "start" }, NOW);
+  assert.equal(started.status, "playing");
+  assert.equal(started.players[1].isBot, true);
+  assert.deepEqual(started.players.map((p) => p.hand.length), [8, 8]);
+});
+
+test("bot names are unique alongside humans, and total room capacity remains six", () => {
+  let state = createGame("p0", "Хрюша (бот)");
+  for (let n = 0; n < 5; n++) state = act(state, "p0", { type: "add_bot" }, NOW + n);
+  assert.equal(state.players.length, 6);
+  assert.equal(new Set(state.players.map((p) => p.id)).size, 6);
+  assert.equal(new Set(state.players.map((p) => p.name)).size, 6);
+  assert.equal(state.players.filter((p) => p.isBot).length, 5);
+  const before = structuredClone(state);
+  assert.throws(() => act(state, "p0", { type: "add_bot" }, NOW + 6), /шесть/);
+  assert.throws(() => addPlayer(state, "p6", "Ещё человек"), /шесть/);
+  assert.deepEqual(state, before);
+});
+
+test("only the host can manage bots, only in the lobby, and humans cannot be removed", () => {
+  let state = lobby(2);
+  assert.throws(() => act(state, "p1", { type: "add_bot" }, NOW), /создатель/);
+  state = act(state, "p0", { type: "add_bot" }, NOW);
+  const bot = state.players.at(-1)!;
+  assert.throws(() => act(state, "p1", { type: "remove_bot", targetId: bot.id }, NOW), /создатель/);
+  assert.throws(() => act(state, "p0", { type: "remove_bot", targetId: "p1" }, NOW), /только ботов/);
+  assert.throws(() => act(state, "p0", { type: "remove_bot", targetId: "p0" }, NOW), /только ботов/);
+  assert.throws(() => act(state, "p0", { type: "remove_bot", targetId: "missing" }, NOW), /не найден/);
+  const started = act(state, "p0", { type: "start" }, NOW);
+  assert.throws(() => act(started, "p0", { type: "add_bot" }, NOW), /до начала/);
+  assert.throws(() => act(started, "p0", { type: "remove_bot", targetId: bot.id }, NOW), /до начала/);
+  const ended = { ...started, status: "round_end" as const };
+  assert.throws(() => act(ended, "p0", { type: "add_bot" }, NOW), /до начала/);
+  const before = structuredClone(state);
+  const removed = act(state, "p0", { type: "remove_bot", targetId: bot.id }, NOW);
+  assert.deepEqual(state, before);
+  assert.deepEqual(removed.players.map((p) => p.id), ["p0", "p1"]);
+  assert.equal(removed.hostId, "p0");
+  assert.equal(act(removed, "p0", { type: "start" }, NOW).status, "playing");
+});
+
+test("legacy players without an isBot property remain human and can start normally", () => {
+  const state = lobby(2);
+  state.players.forEach((p) => delete p.isBot);
+  assert.deepEqual(publicGame(state, "p0").players.map((p) => p.isBot), [false, false]);
+  assert.throws(() => act(state, "p0", { type: "remove_bot", targetId: "p1" }, NOW), /только ботов/);
+  assert.equal(act(state, "p0", { type: "start" }, NOW).status, "playing");
+});
+
+test("removing the only bot restores a one-person lobby, which cannot start", () => {
+  let state = act(createGame("p0", "Игрок"), "p0", { type: "add_bot" }, NOW);
+  state = act(state, "p0", { type: "remove_bot", targetId: state.players[1].id }, NOW);
+  assert.equal(state.players.length, 1);
+  assert.throws(() => act(state, "p0", { type: "start" }, NOW), /двух.*шести/);
 });
 
 test("opening instructions apply as if the dealer played them", () => {
@@ -192,6 +271,44 @@ test("skip chains transfer one skipped turn instead of accumulating skipped seat
   state = act(state, "p3", { type: "accept_penalty" }, NOW);
   assert.equal(state.turnIndex, 4);
   assert.equal(state.players[3].hand.length, count);
+});
+
+test("two-player skip returns the turn to its author, and a transfer can return the penalty", () => {
+  let state = playing(2);
+  const first = card("skip", "red"), second = card("skip", "blue");
+  state.players[0].hand = [first, card()];
+  state.players[1].hand = [second, card()];
+  const afterFirst = act(state, "p0", { type: "play", cardId: first.id }, NOW);
+  const accepted = act(afterFirst, "p1", { type: "accept_penalty" }, NOW);
+  assert.equal(accepted.turnIndex, 0);
+  assert.equal(accepted.players[1].hand.length, 2);
+  state = act(afterFirst, "p1", { type: "play", cardId: second.id }, NOW);
+  assert.equal(state.turnIndex, 0);
+  assert.deepEqual(state.pending, { kind: "skip", amount: 1 });
+  state = act(state, "p0", { type: "accept_penalty" }, NOW);
+  assert.equal(state.turnIndex, 1);
+  assert.equal(state.players[0].hand.length, 1);
+  assert.equal(state.pending, null);
+});
+
+test("two-player draw3 stacks on a transfer back to the original sender", () => {
+  let state = playing(2);
+  state.players[1].isBot = true;
+  const first = card("draw3", "red"), second = card("draw3", "blue");
+  state.players[0].hand = [first, card()];
+  state.players[1].hand = [second, card()];
+  const afterFirst = act(state, "p0", { type: "play", cardId: first.id }, NOW);
+  const accepted = act(afterFirst, "p1", { type: "accept_penalty" }, NOW);
+  assert.equal(accepted.turnIndex, 0);
+  assert.equal(accepted.players[1].hand.length, 5);
+  state = act(afterFirst, "p1", { type: "play", cardId: second.id }, NOW);
+  assert.deepEqual(state.pending, { kind: "draw3", amount: 6 });
+  assert.equal(state.turnIndex, 0);
+  state = act(state, "p0", { type: "accept_penalty" }, NOW);
+  assert.equal(state.players[0].hand.length, 7);
+  assert.equal(state.players[1].hand.length, 1);
+  assert.equal(state.turnIndex, 1);
+  assert.equal(state.pending, null);
 });
 
 test("an exact duplicate intercepts out of turn and continues at the interceptor's neighbor", () => {
@@ -339,6 +456,27 @@ test("clap expiry penalizes all missing responses tied for last, resumes a fresh
   assert.deepEqual(before.players.map((p) => p.hand.length), [8, 8, 8, 8, 8, 8]);
 });
 
+test("two-player clap waits for both participants, with one last responder or a tied expiry", () => {
+  let state = playing(2);
+  state.players[1].isBot = true;
+  const clap = card("clap", "red");
+  state.players[0].hand = [clap, card()];
+  const started = act(state, "p0", { type: "play", cardId: clap.id }, NOW);
+  state = act(started, "p0", { type: "clap" }, NOW + 1);
+  assert.ok(state.clap);
+  assert.equal(state.turnDeadline, null);
+  state = act(state, "p1", { type: "clap" }, NOW + 2);
+  assert.equal(state.clap, null);
+  assert.deepEqual(state.players.map((p) => p.hand.length), [1, 4]);
+  assert.equal(state.turnIndex, 1);
+  assert.equal(state.turnDeadline, NOW + 5002);
+  const expired = tick(started, NOW + 5000);
+  assert.deepEqual(expired.players.map((p) => p.hand.length), [3, 4]);
+  assert.equal(expired.clap, null);
+  assert.equal(expired.catchablePlayerId, null);
+  assert.equal(expired.turnIndex, 1);
+});
+
 test("timers use the configured interval, return unchanged references when idle, and skip slow players", () => {
   const state = playing();
   state.turnSeconds = 2;
@@ -421,6 +559,39 @@ test("score counts retained cards including ties, resets next round, and the dea
   assert.deepEqual(state.players.map((p) => p.score), [0, 0, 0, 0, 0, 0]);
   assert.deepEqual(state.svintusIds, []);
   assert.equal(state.winnerId, null);
+});
+
+test("a two-player round scores the loser's retained cards and resets with a rotating dealer", () => {
+  let state = playing(2);
+  state.players[1].isBot = true;
+  state.players[0].hand = [card()];
+  state.players[1].hand.push(card());
+  state = act(state, "p0", { type: "play", cardId: state.players[0].hand[0].id }, NOW);
+  assert.equal(state.status, "round_end");
+  assert.equal(state.roundWinnerId, "p0");
+  assert.deepEqual(state.players.map((p) => p.score), [0, 3]);
+  assert.deepEqual(state.svintusIds, ["p1"]);
+  state = act(state, "p0", { type: "next_round" }, NOW);
+  assert.equal(state.round, 2);
+  assert.equal(state.dealerIndex, 1);
+  assert.equal(state.turnIndex, 0);
+  assert.equal(state.players[1].isBot, true);
+  assert.deepEqual(state.players.map((p) => p.score), [0, 0]);
+  assert.deepEqual(state.players.map((p) => p.hand.length), [8, 8]);
+});
+
+test("a bot's last special card can win a two-player round immediately", () => {
+  const state = playing(2);
+  state.turnIndex = 1;
+  state.players[1].isBot = true;
+  const final = card("draw3", "red");
+  state.players[1].hand = [final];
+  const next = act(state, "p1", { type: "play", cardId: final.id }, NOW);
+  assert.equal(next.status, "round_end");
+  assert.equal(next.roundWinnerId, "p1");
+  assert.equal(next.pending, null);
+  assert.deepEqual(next.players.map((p) => p.score), [2, 0]);
+  assert.deepEqual(next.svintusIds, ["p0"]);
 });
 
 test("public serialization reveals only the viewer's cards and safe shared fields", () => {

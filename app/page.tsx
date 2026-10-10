@@ -71,7 +71,8 @@ function Dialog({ title, onClose, children, className = "" }: { title: string; o
 function Rules({ onClose }: { onClose: () => void }) {
   return <Dialog title="Правила Свинтуса" onClose={onClose} className="rules-dialog">
     <span className="eyebrow">Свинская инструкция</span><h2>Всё просто.<br /><em>Пока не началось.</em></h2>
-    <p className="rules-intro">Шесть друзей, по 8 карт на старте, 104 карты в колоде. Играем по часовой стрелке. «Перехрюк» исключён.</p>
+    <p className="rules-intro">От 2 до 6 участников — друзья, боты или компания вместе. По 8 карт на старте, 104 карты в колоде. Играем по часовой стрелке. «Перехрюк» исключён.</p>
+    <p className="rules-bots">Хозяин может добавить или убрать ботов до раздачи. Боты ходят самостоятельно по тем же правилам и видят только свою руку — можно начать одному с ботом.</p>
     <div className="rule-row"><span className="rule-number">01</span><div><h3>Совпало? Клади.</h3><p>Карта должна совпасть с верхней по цвету или достоинству. Не хочешь или не можешь ходить — возьми одну карту. Только что взятую подходящую карту можно сразу сыграть; иначе передай ход.</p></div></div>
     <div className="rule-row"><span className="rule-number">02</span><div><h3>Одна карта? «Свинтус!»</h3><p>Как только на руке останется одна карта, нажми «Свинтус!». Соперник может поймать тебя раньше — тогда получишь 3 карты. Побеждает первое принятое сервером действие. Кнопка — беззвучный жест, совместимый с «Тихохрюном».</p></div></div>
     <div className="rule-row"><span className="rule-number">03</span><div><h3>Перехватывай и переводи.</h3><p>Точную копию верхней карты можно сыграть вне очереди — ход продолжится от тебя. «Хапёж» и «Захрапин» можно перевести такой же картой любого цвета. Штраф «Хапежа» складывается.</p></div></div>
@@ -89,6 +90,10 @@ function Rules({ onClose }: { onClose: () => void }) {
 
 function Avatar({ player, index, small = false }: { player: Player; index: number; small?: boolean }) {
   return <span className={`avatar avatar-${index % 6} ${small ? "avatar-small" : ""}`} aria-hidden="true">{player.name.trim().slice(0, 1).toUpperCase()}</span>;
+}
+
+function BotTag({ player }: { player: Player }) {
+  return player.isBot ? <span className="bot-tag" title="Бот — играет автоматически">БОТ</span> : null;
 }
 
 function CardPicture({ card, className = "" }: { card: Card; className?: string }) {
@@ -265,6 +270,7 @@ export default function Home() {
   const remaining = game?.turnDeadline ? Math.max(0, game.turnDeadline - now) : 0;
   const clapResponded = !!game?.clap?.responded.includes(game.meId);
   const me = game?.players.find(player => player.id === game.meId);
+  const roundWinner = game?.players.find(player => player.id === game.roundWinnerId);
   const roomActive = !!session && !!game;
 
   return <main className={roomActive ? "app game-app" : "app landing-app"}>
@@ -281,8 +287,8 @@ export default function Home() {
         <div className="hero-copy">
           <span className="eyebrow hero-eyebrow"><span className="tiny-spark">✳</span> Друзья. Карты. Немного свинства.</span>
           <h1>Подложи<br />свинью.<br /><span>Своим друзьям.</span></h1>
-          <p className="hero-description">Тот самый «Свинтус» — теперь за одним<br className="desktop-break" /> онлайн-столом. Соберите шестёрку. И погнали.</p>
-          <div className="hero-badges"><span><Icon name="people" size={18} />Ровно 6 игроков</span><span><Icon name="spark" size={18} />Никаких ботов</span><span className="badge-yellow">Без карт — победа</span></div>
+          <p className="hero-description">Тот самый «Свинтус» — теперь за одним<br className="desktop-break" /> онлайн-столом. С друзьями или ботами. И погнали.</p>
+          <div className="hero-badges"><span><Icon name="people" size={18} />2–6 участников</span><span><Icon name="spark" size={18} />Можно с ботами</span><span className="badge-yellow">Без карт — победа</span></div>
           <div className="hero-art" aria-hidden="true">
             <img className="hero-card hero-card-one" src="/cards/red-7.jpg" alt="" />
             <img className="hero-card hero-card-two" src="/cards/green-clap.jpg" alt="" />
@@ -300,14 +306,14 @@ export default function Home() {
               {error && <p className="form-error" role="alert">{error}</p>}
               <button className="button button-orange form-submit" disabled={!hydrated || !!busy}>{busy ? <><span className="spinner" />Собираем стол…</> : <>{mode === "create" ? "Создать комнату" : "Занять своё место"}<Icon name="arrow" /></>}</button>
             </form>
-            <p className="form-note">{mode === "create" ? "Создай комнату и отправь ссылку пяти друзьям." : "Попроси у друга ссылку или шестизначный код."}<br />Без регистрации. Серьёзно.</p>
+            <p className="form-note">{mode === "create" ? "Позови друзей по ссылке или добавь ботов за стол." : "Попроси у друга ссылку или шестизначный код."}<br />Можно вдвоём. Можно одному с ботом.</p>
           </div>
           <div className="under-form-note"><span>↳</span> Перехрюка нет. Свинтус — у кого больше карт.</div>
         </div>
       </section>
       <section className="how-it-works" aria-label="Как начать игру">
         <div className="how-heading"><span className="eyebrow">Легко начать. Трудно остановиться.</span><h2>Три шага<br />до свинства.</h2></div>
-        <div className="how-step"><span>01 /</span><h3>Собери своих.</h3><p>Создай стол и позови пятерых друзей по ссылке.</p></div>
+        <div className="how-step"><span>01 /</span><h3>Собери своих.</h3><p>Позови друзей по ссылке или добавь ботов. Для старта хватит двоих.</p></div>
         <div className="how-step"><span>02 /</span><h3>Подложи карту.</h3><p>Совпадает цвет или достоинство? Твой выход.</p></div>
         <div className="how-step"><span>03 /</span><h3>Нажми «Свинтус!»</h3><p>Осталась одна карта? Нажми «Свинтус!» раньше соперников.</p></div>
       </section>
@@ -317,16 +323,16 @@ export default function Home() {
     {session && !game && <div className="restore-overlay" role="status"><span className="spinner" />Возвращаем тебя за стол…{error && <p className="restore-error">{error}</p>}<button className="text-button" onClick={home}>На главную</button></div>}
 
     {roomActive && game && session && <>
-      <div className="room-toolbar"><div><span className="eyebrow">Комната</span><button className="room-code" onClick={copyInvite} title="Скопировать приглашение">{session.code}<Icon name="copy" size={16} /></button></div><div className="room-settings"><span>{game.turnSeconds} сек на ход</span><span>6 игроков</span><span>Без карт — победа</span></div><button className="button button-outline invite-button" onClick={copyInvite}><Icon name="copy" size={16} />Пригласить друзей</button></div>
+      <div className="room-toolbar"><div><span className="eyebrow">Комната</span><button className="room-code" onClick={copyInvite} title="Скопировать приглашение">{session.code}<Icon name="copy" size={16} /></button></div><div className="room-settings"><span>{game.turnSeconds} сек на ход</span><span>{game.status === "lobby" ? "2–6 участников" : `${game.players.length} за столом`}</span><span>Без карт — победа</span></div><button className="button button-outline invite-button" onClick={copyInvite}><Icon name="copy" size={16} />Пригласить друзей</button></div>
 
       {game.status === "lobby" ? <section className="lobby">
-        <div className="lobby-intro"><span className="eyebrow">Хорошее свинство требует компании</span><h1>Собираем<br /><span>всю шестёрку.</span></h1><p>Ссылка уже готова. Осталось позвать своих<br className="desktop-break" /> и занять все места за столом.</p></div>
-        <div className="lobby-seats">{Array.from({ length: 6 }, (_, index) => { const player = game.players[index]; return <div key={player?.id || index} className={`lobby-seat ${player ? "occupied" : "empty"}`}>{player ? <><Avatar player={player} index={index} /><div><strong>{player.name}{player.id === game.meId && <small>это ты</small>}</strong><span>{player.id === game.hostId ? "Хозяин стола" : "Готов к свинству"}</span></div><span className="seat-check"><Icon name="check" /></span></> : <><span className="empty-avatar"><Icon name="people" /></span><div><strong>Свободное место</strong><span>Ждём ещё одного друга</span></div><span className="seat-number">0{index + 1}</span></>}</div>; })}</div>
-        <div className="lobby-start"><div className="lobby-progress"><span><b>{game.players.length}</b> из 6 игроков за столом</span><div>{Array.from({ length: 6 }, (_, index) => <i key={index} className={index < game.players.length ? "filled" : ""} />)}</div></div>{isHost ? <button className="button button-orange" disabled={game.players.length !== 6 || !!busy} onClick={() => void act({ type: "start" })}>{busy === "start" ? <span className="spinner" /> : <Icon name="spark" />}{game.players.length === 6 ? "Раздать карты!" : `Ждём ещё ${6 - game.players.length}`}</button> : <div className="waiting-host">{game.players.length === 6 ? "Все в сборе! Хозяин скоро раздаст карты." : "Можно пока изучить правила."}</div>}</div>
+        <div className="lobby-intro"><span className="eyebrow">Хорошее свинство требует компании</span><h1>Собираем<br /><span>свою компанию.</span></h1><p>От 2 до 6 участников. Позови друзей по ссылке<br className="desktop-break" /> или добавь ботов — они уже готовы играть.</p></div>
+        <div className="lobby-seats">{Array.from({ length: 6 }, (_, index) => { const player = game.players[index]; return <div key={player?.id || index} className={`lobby-seat ${player ? "occupied" : "empty"} ${player?.isBot ? "bot-seat" : ""}`}>{player ? <><Avatar player={player} index={index} /><div><strong>{player.name}<BotTag player={player} />{player.id === game.meId && <small>это ты</small>}</strong><span>{player.isBot ? "Играет самостоятельно" : player.id === game.hostId ? "Хозяин стола" : "Готов к свинству"}</span></div>{player.isBot && isHost ? <button className="remove-bot-button" disabled={!!busy} onClick={() => void act({ type: "remove_bot", targetId: player.id })} aria-label={`Удалить бота ${player.name}`} title="Убрать бота со стола"><Icon name="close" size={16} /></button> : <span className="seat-check"><Icon name="check" /></span>}</> : <><span className="empty-avatar"><Icon name="people" /></span><div><strong>Свободное место</strong><span>Для друга или бота</span></div><span className="seat-number">0{index + 1}</span></>}</div>; })}</div>
+        <div className="lobby-start"><div className="lobby-progress"><span><b>{game.players.length}</b> из 6 мест занято</span><div>{Array.from({ length: 6 }, (_, index) => <i key={index} className={index < game.players.length ? "filled" : ""} />)}</div><small>{game.players.length < 2 ? "Нужен ещё один участник" : "Можно раздавать карты"}</small></div>{isHost ? <div className="lobby-controls">{game.players.length < 6 && <button className="button button-outline add-bot-button" disabled={!!busy} onClick={() => void act({ type: "add_bot" })}>{busy === "add_bot" ? <span className="spinner" /> : <Icon name="people" size={18} />}Добавить бота</button>}<button className="button button-orange" disabled={game.players.length < 2 || !!busy} onClick={() => void act({ type: "start" })}>{busy === "start" ? <span className="spinner" /> : <Icon name="spark" />}{game.players.length >= 2 ? "Раздать карты!" : "Нужен ещё один"}</button></div> : <div className="waiting-host">{game.players.length >= 2 ? "Можно начинать! Ждём раздачи от хозяина." : "Можно пока изучить правила."}</div>}</div>
         <p className="lobby-reminder"><Icon name="sound" size={17} />Для полного свинства созвонитесь с друзьями. «Тихохрюн» действует и на разговор.</p>
       </section> : <section className="play-area">
         <div className="game-meta"><span className="round-label">РАУНД <b>{game.round}</b></span><span className="game-meta-note">По часовой стрелке <span>↻</span></span><button className="text-button chat-toggle" onClick={() => setChatOpen(true)}><Icon name="chat" size={18} />Чат стола{game.chat.length > 0 && <span className="chat-count">{game.chat.length}</span>}</button></div>
-        <div className="opponents">{game.players.filter(player => player.id !== game.meId).map(player => { const index = game.players.findIndex(p => p.id === player.id); const active = currentPlayer?.id === player.id && game.status === "playing"; return <div key={player.id} className={`opponent ${active ? "opponent-active" : ""}`}><div className="opponent-top"><Avatar player={player} index={index} small /><div><strong title={player.name}>{player.name}</strong><span>{player.score} штрафных очков</span></div>{active && <span className="turn-dot" title="Сейчас ходит" />}</div><div className="opponent-cards"><span className="mini-card-back" /><b>{player.cardCount}</b><span>{player.cardCount === 1 ? "карта" : player.cardCount > 1 && player.cardCount < 5 ? "карты" : "карт"}</span>{game.catchablePlayerId === player.id && <button className="catch-button" disabled={!!busy} onClick={() => void act({ type: "catch", targetId: player.id })} title="Поймать игрока, который не сказал «Свинтус!»">Поймать!</button>}</div></div>; })}</div>
+        <div className="opponents" style={{ "--opponent-count": Math.max(1, game.players.length - 1) } as React.CSSProperties}>{game.players.filter(player => player.id !== game.meId).map(player => { const index = game.players.findIndex(p => p.id === player.id); const active = currentPlayer?.id === player.id && game.status === "playing"; return <div key={player.id} className={`opponent ${active ? "opponent-active" : ""}`}><div className="opponent-top"><Avatar player={player} index={index} small /><div><strong title={player.name}>{player.name}</strong><span>{player.score} штрафных очков</span><BotTag player={player} /></div>{active && <span className="turn-dot" title="Сейчас ходит" />}</div><div className="opponent-cards"><span className="mini-card-back" /><b>{player.cardCount}</b><span>{player.cardCount === 1 ? "карта" : player.cardCount > 1 && player.cardCount < 5 ? "карты" : "карт"}</span>{game.catchablePlayerId === player.id && <button className="catch-button" disabled={!!busy} onClick={() => void act({ type: "catch", targetId: player.id })} title="Поймать игрока, который не сказал «Свинтус!»">Поймать!</button>}</div></div>; })}</div>
 
         {game.silenceOwnerId && game.status === "playing" && <div className="silence-banner"><span className="silence-emoji" aria-hidden="true">🤫</span><div><b>Тихохрюн. Тс-с-с…</b><span>Молчим до следующей карты {game.players.find(p => p.id === game.silenceOwnerId)?.name || "автора"}.</span></div><button disabled={!!busy} onClick={() => void act({ type: "break_silence" })}>Нарушить тишину <span>+2 карты</span></button></div>}
 
@@ -345,8 +351,8 @@ export default function Home() {
         </>}
 
         {game.status === "round_end" && <div className="scoreboard">
-          <div className="scoreboard-heading"><span className="winner-star">✳</span><span className="eyebrow">Без карт. Без штрафа.</span><h2>{game.players.find(p => p.id === game.roundWinnerId)?.name}<span>выигрывает раунд!</span></h2><p>Одна оставшаяся карта — одно штрафное очко.</p></div>
-          <div className="scoreboard-list">{[...game.players].sort((a, b) => a.id === game.roundWinnerId ? -1 : b.id === game.roundWinnerId ? 1 : a.score - b.score).map((player, index) => <div key={player.id} className={`score-row ${player.id === game.roundWinnerId ? "score-leader" : ""} ${game.svintusIds.includes(player.id) ? "score-svintus" : ""}`}><span className="score-rank">{index + 1}</span><Avatar player={player} index={game.players.findIndex(p => p.id === player.id)} small /><strong>{player.name}{player.id === game.meId && <small>это ты</small>}{game.svintusIds.includes(player.id) && <span className="svintus-label">Свинтус!</span>}{player.id === game.roundWinnerId && <span className="winner-label">Победитель</span>}</strong><span className="score-points">{player.score}<small> очков</small></span></div>)}</div>
+          <div className="scoreboard-heading"><span className="winner-star">✳</span><span className="eyebrow">Без карт. Без штрафа.</span><h2>{roundWinner?.name}{roundWinner?.isBot && <span className="winner-bot-note">Бот</span>}<span>выигрывает раунд!</span></h2><p>Одна оставшаяся карта — одно штрафное очко.</p></div>
+          <div className="scoreboard-list">{[...game.players].sort((a, b) => a.id === game.roundWinnerId ? -1 : b.id === game.roundWinnerId ? 1 : a.score - b.score).map((player, index) => <div key={player.id} className={`score-row ${player.id === game.roundWinnerId ? "score-leader" : ""} ${game.svintusIds.includes(player.id) ? "score-svintus" : ""}`}><span className="score-rank">{index + 1}</span><Avatar player={player} index={game.players.findIndex(p => p.id === player.id)} small /><strong>{player.name}<BotTag player={player} />{player.id === game.meId && <small>это ты</small>}{game.svintusIds.includes(player.id) && <span className="svintus-label">Свинтус!</span>}{player.id === game.roundWinnerId && <span className="winner-label">Победитель</span>}</strong><span className="score-points">{player.score}<small> очков</small></span></div>)}</div>
           {game.svintusIds.length > 0 && <p className="svintus-explanation">{game.svintusIds.length > 1 ? "Свинтусы раунда" : "Свинтус раунда"} — {game.players.filter(p => game.svintusIds.includes(p.id)).map(p => p.name).join(", ")}. Больше всего карт на руках!</p>}
           {isHost ? <button className="button button-orange" disabled={!!busy} onClick={() => void act({ type: "next_round" })}>Ещё раунд? Раздаём!<Icon name="arrow" /></button> : <p className="waiting-host">Ждём, пока хозяин начнёт следующий раунд.</p>}
         </div>}

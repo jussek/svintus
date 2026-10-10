@@ -104,7 +104,7 @@ test('six real browsers play, reconnect, declare/catch and clap using live Supab
     ownCode = host.code;
     expect(host.game.turnSeconds).toBe(5);
     await expect(pages[0].locator('.lobby-seat.occupied')).toHaveCount(1);
-    await expect(pages[0].getByRole('button', { name: 'Ждём ещё 5' })).toBeDisabled();
+    await expect(pages[0].getByRole('button', { name: 'Нужен ещё один' })).toBeDisabled();
 
     // Lose the first guest's response only after the real server has committed
     // its seat. Retrying through the UI must recover that exact seat/token.

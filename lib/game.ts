@@ -3,7 +3,7 @@ export const COLORS = ["red", "orange", "green", "blue"] as const;
 export type Color = (typeof COLORS)[number];
 export type CardKind = "number" | "draw3" | "skip" | "wild" | "silence" | "clap";
 export type Card = { id: string; color: Color | null; kind: CardKind; value?: number };
-export type Player = { id: string; name: string; hand: Card[]; score: number };
+export type Player = { id: string; name: string; hand: Card[]; score: number; isBot?: boolean };
 export type GameState = {
   players: Player[];
   hostId: string;
@@ -29,6 +29,8 @@ export type GameState = {
   chat: Array<{ id: string; playerId: string; text: string; at: number }>;
 };
 export type Action =
+  | { type: "add_bot" }
+  | { type: "remove_bot"; targetId: string }
   | { type: "start"; color?: Color }
   | { type: "next_round"; color?: Color }
   | { type: "play"; cardId: string; color?: Color }
@@ -89,7 +91,7 @@ function shuffled(cards: Card[]): Card[] {
 export function createGame(hostId: string, hostName: string, turnSeconds: 2 | 3 | 5 = 5): GameState {
   if (!hostId || ![2, 3, 5].includes(turnSeconds)) throw new GameError("Некорректные настройки комнаты.");
   return {
-    players: [{ id: hostId, name: cleanName(hostName), hand: [], score: 0 }], hostId,
+    players: [{ id: hostId, name: cleanName(hostName), hand: [], score: 0, isBot: false }], hostId,
     status: "lobby", round: 0, dealerIndex: 0, turnIndex: 0, activeColor: null,
     drawPile: [], discardPile: [], turnDeadline: null, turnSeconds,
     drawnCardId: null, pending: null, clap: null, silenceOwnerId: null,
@@ -104,8 +106,17 @@ export function addPlayer(input: GameState, id: string, name: string): GameState
   if (input.status !== "lobby") throw new GameError("Партия уже началась.");
   if (input.players.length >= 6) throw new GameError("В комнате уже шесть игроков.");
   const state = copy(input);
-  state.players.push({ id, name: cleanName(name), hand: [], score: 0 });
+  state.players.push({ id, name: cleanName(name), hand: [], score: 0, isBot: false });
   return state;
+}
+
+function botName(state: GameState): string {
+  const names = ["Хрюша", "Пятачок", "Боря", "Нюша", "Хрюндель"];
+  for (let n = 0; ; n++) {
+    const suffix = n < names.length ? "" : ` ${Math.floor(n / names.length) + 1}`;
+    const name = `${names[n % names.length]}${suffix} (бот)`;
+    if (!state.players.some((player) => player.name === name)) return name;
+  }
 }
 
 function take(state: GameState, player: Player, amount: number): Card[] {
@@ -155,7 +166,7 @@ function applyCard(state: GameState, card: Card, playerId: string, now: number, 
 }
 
 function beginRound(state: GameState, now: number, chosenColor?: Color) {
-  if (state.players.length !== 6) throw new GameError("Для начала нужны ровно шесть игроков.");
+  if (state.players.length < 2 || state.players.length > 6) throw new GameError("Для начала нужны от двух до шести игроков.");
   state.round++;
   state.dealerIndex = (state.round - 1) % state.players.length;
   state.turnIndex = nextIndex(state, state.dealerIndex);
@@ -280,6 +291,23 @@ export function act(input: GameState, playerId: string, action: Action, now = Da
   const state = copy(tick(input, now));
   const player = state.players.find((p) => p.id === playerId);
   if (!player) throw new GameError("Вы не участник комнаты.");
+  if (action.type === "add_bot" || action.type === "remove_bot") {
+    if (playerId !== state.hostId) throw new GameError("Добавлять и удалять ботов может только создатель комнаты.");
+    if (state.status !== "lobby") throw new GameError("Добавлять и удалять ботов можно только до начала игры.");
+    if (action.type === "add_bot") {
+      if (state.players.length >= 6) throw new GameError("В комнате уже шесть игроков.");
+      const name = botName(state);
+      state.players.push({ id: uid(), name, hand: [], score: 0, isBot: true });
+      log(state, `${name} присоединился к столу.`, now);
+    } else {
+      const bot = state.players.find((p) => p.id === action.targetId);
+      if (!bot) throw new GameError("Этот бот не найден в комнате.");
+      if (!bot.isBot) throw new GameError("Удалять можно только ботов, а не людей.");
+      state.players = state.players.filter((p) => p.id !== bot.id);
+      log(state, `${bot.name} покинул стол.`, now);
+    }
+    return state;
+  }
   if (action.type === "chat") {
     if (typeof action.text !== "string") throw new GameError("Некорректное сообщение.");
     const text = action.text.replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, 200);
@@ -388,7 +416,7 @@ export function act(input: GameState, playerId: string, action: Action, now = Da
 
 export type PublicGame = Omit<GameState, "players" | "drawPile" | "discardPile" | "drawnCardId"> & {
   meId: string;
-  players: Array<Omit<Player, "hand"> & { cardCount: number }>;
+  players: Array<Omit<Player, "hand" | "isBot"> & { cardCount: number; isBot: boolean }>;
   hand: Card[];
   topCard: Card | null;
   drawPileCount: number;
@@ -402,7 +430,7 @@ export function publicGame(state: GameState, playerId: string): PublicGame {
   return {
     ...shared,
     meId: playerId,
-    players: players.map(({ hand, ...player }) => ({ ...player, cardCount: hand.length })),
+    players: players.map(({ hand, isBot, ...player }) => ({ ...player, cardCount: hand.length, isBot: !!isBot })),
     hand: players.find((p) => p.id === playerId)!.hand,
     topCard: discardPile.at(-1) ?? null,
     drawPileCount: drawPile.length,

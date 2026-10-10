@@ -116,6 +116,11 @@ input:disabled { opacity: .45; }
 .lobby-seats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 45px; }
 .lobby-seat { display: flex; align-items: center; gap: 13px; border-radius: 9px; padding: 22px 18px; min-width: 0; }
 .lobby-seat.occupied { background: rgba(245,240,229,.065); border: 1px solid rgba(245,240,229,.11); }
+.lobby-seat.bot-seat { border-color: rgba(159,203,205,.25); background: rgba(159,203,205,.055); }
+.bot-tag { display: inline-flex; align-items: center; vertical-align: middle; border: 1px solid rgba(159,203,205,.35); color: #b2d6d5; border-radius: 3px; padding: 3px 4px; margin-left: 6px; font-size: 7px; letter-spacing: .6px; font-weight: 700; line-height: 1; white-space: nowrap; }
+.remove-bot-button { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; flex-shrink: 0; border-radius: 6px; border: 1px solid rgba(245,240,229,.14); background: rgba(245,240,229,.035); color: #b1c5b0; }
+.remove-bot-button:hover:not(:disabled) { color: var(--orange); border-color: var(--orange); background: rgba(255,145,105,.08); }
+.remove-bot-button:disabled { opacity: .35; }
 .lobby-seat.empty { border: 1px dashed rgba(245,240,229,.19); color: #a4b3a0; }
 .avatar { width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 21px; border-radius: 50%; color: var(--green-deep); flex-shrink: 0; background: var(--orange); }
 .avatar-0 { background: var(--orange); }.avatar-1 { background: var(--green-bright); }.avatar-2 { background: #b9b8df; }.avatar-3 { background: var(--yellow); }.avatar-4 { background: #9fcbcd; }.avatar-5 { background: #d7a4b6; }
@@ -134,6 +139,10 @@ input:disabled { opacity: .45; }
 .lobby-progress > div { display: flex; gap: 5px; margin-top: 10px; }
 .lobby-progress i { display: block; width: 23px; height: 4px; background: #35533c; border-radius: 2px; }
 .lobby-progress i.filled { background: var(--green-bright); }
+.lobby-progress > small { display: block; color: #a7b7a2; font-size: 8px; margin-top: 10px; }
+.lobby-controls { display: flex; gap: 10px; }
+.lobby-controls > .button { min-width: 170px; }
+.add-bot-button { font-weight: 500; }
 .lobby-start > .button { min-width: 210px; }
 .waiting-host { font-size: 11px; color: var(--cream-muted); text-align: center; line-height: 1.6; }
 .lobby-reminder { color: #91a68b; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 9px; line-height: 1.7; margin-top: 35px; text-align: center; }
@@ -145,13 +154,14 @@ input:disabled { opacity: .45; }
 .game-meta-note > span { font-size: 18px; vertical-align: middle; margin-left: 8px; }
 .chat-toggle { font-size: 10px; }
 .chat-count { min-width: 17px; height: 17px; border-radius: 50%; background: #375a3f; font-size: 8px; display: inline-flex; align-items: center; justify-content: center; padding: 3px; }
-.opponents { display: grid; grid-template-columns: repeat(5, 1fr); gap: 11px; margin-bottom: 22px; }
+.opponents { display: grid; grid-template-columns: repeat(var(--opponent-count, 5), minmax(0, 1fr)); gap: 11px; width: 100%; max-width: min(100%, calc(var(--opponent-count, 5) * 235px)); margin: 0 auto 22px; }
 .opponent { border: 1px solid var(--line); background: rgba(245,240,229,.025); border-radius: 8px; padding: 13px; min-width: 0; transition: border-color .2s, background .2s; }
 .opponent-active { border-color: var(--yellow); background: rgba(235,220,129,.065); }
 .opponent-top { display: flex; align-items: center; gap: 8px; }
 .opponent-top > div { flex: 1; min-width: 0; }
 .opponent-top strong { font-size: 10px; font-weight: 600; display: block; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
 .opponent-top > div > span { font-size: 7px; color: #98ad94; display: block; margin-top: 4px; }
+.opponent-top > div > .bot-tag { display: inline-flex; color: #b2d6d5; font-size: 6px; margin-left: 0; padding: 2px 3px; }
 .turn-dot { width: 5px; height: 5px; flex-shrink: 0; border-radius: 50%; background: var(--yellow); box-shadow: 0 0 10px #ebdc8144; }
 .opponent-cards { display: flex; align-items: center; gap: 5px; margin: 11px 0 0 42px; min-height: 20px; }
 .mini-card-back { width: 11px; height: 16px; border-radius: 2px; background: #829772; border: 1px solid #b0be9b; transform: rotate(-8deg); box-shadow: 2px 1px 0 #617958; }
@@ -358,5 +368,33 @@ input:disabled { opacity: .45; }
   .dialog-backdrop { padding: 15px; }.dialog-panel { padding: 30px 23px; max-height: calc(100svh - 30px); border-radius: 10px; }.dialog-panel h2 { font-size: 31px; }.dialog-panel .eyebrow { font-size: 8px; }.rules-intro { font-size: 10px; }.rule-row { gap: 13px; }.rule-row h3 { font-size: 12px; }.rule-row p { font-size: 9px; }.rules-specials { padding: 13px; }.rules-specials > div { grid-template-columns: 75px 1fr; font-size: 8px; }.rules-specials b { font-size: 9px; }.rules-finish { padding: 15px; gap: 10px; }.rules-finish p { font-size: 9px; }.rules-finish b { font-size: 10px; }.rules-finish svg { width: 22px; height: 22px; }
   .color-choice { font-size: 9px; padding: 13px 10px; }.color-choice > span { width: 8px; height: 8px; }.clap-dialog .dialog-panel { padding: 30px 20px; }.clap-button { width: 160px; height: 160px; }.chat-dialog .dialog-panel { padding: 27px 20px; }.chat-messages { max-height: 35svh; }.chat-form input { font-size: 9px; padding: 10px; }.toast { bottom: 15px; padding: 12px 15px; font-size: 10px; }
 }
-@media (max-width: 370px) { .app { padding: 0 5%; }.brand-tag { display: none; }.hero-copy h1 { font-size: 54px; }.room-form-card { padding: 27px 22px; }.room-form-card h2 { font-size: 35px; }.form-tabs { gap: 22px; }.form-tabs button { font-size: 9px; }.game-meta-note { display: none; }.lobby-intro h1 { font-size: 36px; }.turn-actions { gap: 5px; }.declare-button { padding: 8px; font-size: 8px; }.button-compact { padding: 8px; font-size: 7px; }.your-hand-label strong > span { display: none; } }
+.rules-bots { font-size: 11px; line-height: 1.8; color: #61725d; padding: 13px 15px; border: 1px solid #dbe1cf; border-radius: 6px; background: #e8eddf; margin-top: 16px; }
+.scoreboard h2 > .winner-bot-note { display: inline-block; font-size: 9px; vertical-align: middle; padding: 4px 6px; margin: 0 0 4px 9px; border: 1px solid #a6bbaa; border-radius: 4px; color: #608276; text-transform: uppercase; letter-spacing: 1px; }
+.score-row .bot-tag { color: #5e8275; border-color: #b5c9bd; font-size: 6px; }
+@media (max-width: 800px) {
+  .lobby-start { gap: 25px; }
+  .lobby-controls > .button { min-width: 140px; font-size: 10px; padding: 12px 14px; }
+}
+@media (max-width: 620px) {
+  .lobby-start { flex-wrap: wrap; justify-content: flex-start; gap: 18px; }
+  .lobby-controls { width: 100%; flex-wrap: wrap; gap: 9px; }
+  .lobby-controls > .button { flex: 1; min-width: 130px; min-height: 45px; font-size: 11px; }
+  .lobby-progress > small { font-size: 8px; margin-top: 7px; }
+  .lobby-seat .bot-tag { font-size: 5px; padding: 2px 3px; margin-left: 3px; }
+  .remove-bot-button { width: 28px; height: 32px; background: transparent; border-color: transparent; margin-right: -5px; }
+  .opponents { margin-inline: auto; }
+  .opponent-top > div > .bot-tag { font-size: 5px; padding: 2px 3px; margin-top: 4px; }
+  .opponents:not(:has(.opponent:nth-child(3))) { max-width: min(100%, calc(var(--opponent-count) * 170px)); }
+  .opponents:not(:has(.opponent:nth-child(3))) .opponent { padding: 12px; }
+  .opponents:not(:has(.opponent:nth-child(3))) .opponent-top { flex-direction: row; text-align: left; gap: 8px; }
+  .opponents:not(:has(.opponent:nth-child(3))) .opponent-top strong { font-size: 10px; }
+  .opponents:not(:has(.opponent:nth-child(3))) .opponent-top > div > span { font-size: 7px; }
+  .opponents:not(:has(.opponent:nth-child(3))) .opponent-top > div > .bot-tag { font-size: 5px; }
+  .opponents:not(:has(.opponent:nth-child(3))) .opponent-cards b { font-size: 14px; }
+  .opponents:not(:has(.opponent:nth-child(3))) .opponent-cards > span:last-of-type { font-size: 8px; }
+  .rules-bots { font-size: 9px; padding: 10px 12px; }
+  .scoreboard h2 > .winner-bot-note { font-size: 7px; margin-left: 5px; }
+  .score-row .bot-tag { font-size: 5px; padding: 2px 3px; margin-left: 3px; }
+}
+@media (max-width: 370px) { .app { padding: 0 5%; }.brand-tag { display: none; }.hero-copy h1 { font-size: 54px; }.room-form-card { padding: 27px 22px; }.room-form-card h2 { font-size: 35px; }.form-tabs { gap: 22px; }.form-tabs button { font-size: 9px; }.game-meta-note { display: none; }.lobby-intro h1 { font-size: 34px; }.turn-actions { gap: 5px; }.declare-button { padding: 8px; font-size: 8px; }.button-compact { padding: 8px; font-size: 7px; }.your-hand-label strong > span { display: none; }.lobby-seat { gap: 5px; }.lobby-seat strong { font-size: 8px; }.lobby-seat .avatar { width: 28px; height: 28px; }.remove-bot-button { width: 23px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }

@@ -1,6 +1,7 @@
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { createGame, addPlayer, act, tick, publicGame, type GameState, type Action } from './game';
+import { createGame, addPlayer, act, publicGame, type GameState, type Action } from './game';
+import { advanceGame } from './bots';
 
 type Session = { hash: string; requests: string[] };
 type Room = { code: string; state: GameState; sessions: Record<string,Session>; version: number; created_at: string; updated_at: string };
@@ -52,6 +53,14 @@ async function write(room:Room,state:GameState,sessions=room.sessions) {
   if(error)throw new ApiError(503,'Не удалось сохранить ход. Повторите попытку.');
   return Boolean(data?.length);
 }
+function refreshNewPhase(state:GameState,previous:GameState,now:number) {
+  if(state.clap && state.clap.id!==previous.clap?.id)state.clap.deadline=now+state.turnSeconds*1000;
+  else if(!state.clap && state.turnDeadline!==null && (
+    state.turnDeadline!==previous.turnDeadline || previous.clap!==null ||
+    state.turnIndex!==previous.turnIndex || state.discardPile.at(-1)?.id!==previous.discardPile.at(-1)?.id
+  ))state.turnDeadline=now+state.turnSeconds*1000;
+  return state;
+}
 export async function createRoom(body:Record<string,unknown>) {
   const name=nameOf(body.name);const seconds=body.turnSeconds ?? 5;
   if(seconds!==2 && seconds!==3 && seconds!==5)throw new ApiError(400,'Время хода: 2, 3 или 5 секунд.');
@@ -82,21 +91,30 @@ export async function joinRoom(code:string,body:Record<string,unknown>) {
   throw new ApiError(409,'Кто-то присоединяется одновременно. Повторите вход.');
 }
 export async function getRoom(code:string,token:string) {
+  const receivedAt=Date.now();
   for(let attempt=0;attempt<8;attempt++){
-    const room=await read(code), playerId=playerOf(room,token), state=tick(room.state,Date.now());
+    const room=await read(code), playerId=playerOf(room,token), advanced=advanceGame(room.state,receivedAt);
+    const state=advanced===room.state?advanced:refreshNewPhase(advanced,room.state,Date.now());
     if(state===room.state || await write(room,state))return {game:publicGame(state,playerId)};
   }
   throw new ApiError(409,'Стол обновляется. Повторите запрос.');
 }
 export async function roomAction(code:string,token:string,body:Record<string,unknown>,requestId:string|null) {
+  const receivedAt=Date.now();
   if(requestId && !/^[a-zA-Z0-9_-]{8,64}$/.test(requestId))throw new ApiError(400,'Некорректный идентификатор хода.');
   const action=parseAction(body);
   for(let attempt=0;attempt<8;attempt++){
     const room=await read(code),playerId=playerOf(room,token);
     if(requestId && room.sessions[playerId].requests.includes(requestId))return {game:publicGame(room.state,playerId)};
+    // Database latency must not let a bot overtake an already-arrived gesture.
+    const advanced=advanceGame(room.state,receivedAt);
     let state:GameState;
-    try {state=act(tick(room.state,Date.now()),playerId,action,Date.now());}
-    catch(e){throw new ApiError(409,e instanceof Error?e.message:'Такой ход сейчас невозможен.');}
+    try {state=advanceGame(refreshNewPhase(act(advanced,playerId,action,receivedAt),room.state,Date.now()),Date.now());}
+    catch(e){
+      // A rejected human move must still preserve any due bot/timeout actions.
+      if(advanced!==room.state && !await write(room,refreshNewPhase(advanced,room.state,Date.now())))continue;
+      throw new ApiError(409,e instanceof Error?e.message:'Такой ход сейчас невозможен.');
+    }
     const sessions=requestId?{...room.sessions,[playerId]:{...room.sessions[playerId],requests:[...room.sessions[playerId].requests,requestId].slice(-32)}}:room.sessions;
     if(await write(room,state,sessions))return {game:publicGame(state,playerId)};
   }
@@ -105,13 +123,13 @@ export async function roomAction(code:string,token:string,body:Record<string,unk
 export function parseAction(body:Record<string,unknown>):Action {
   const type=body.type;
   if(typeof type!=='string')throw new ApiError(400,'Неизвестное действие.');
-  if(['start','next_round','draw','pass','accept_penalty','clap','declare','break_silence'].includes(String(type)))return {type} as Action;
+  if(['start','next_round','add_bot','draw','pass','accept_penalty','clap','declare','break_silence'].includes(String(type)))return {type} as Action;
   if(type==='play'){
     if(typeof body.cardId!=='string' || body.cardId.length>80)throw new ApiError(400,'Выберите карту.');
     if(body.color!==undefined && !['red','orange','green','blue'].includes(String(body.color)))throw new ApiError(400,'Выберите один из четырёх цветов.');
     return {type,cardId:body.cardId,color:body.color} as Action;
   }
-  if(type==='catch'){
+  if(type==='catch' || type==='remove_bot'){
     if(typeof body.targetId!=='string' || body.targetId.length>80)throw new ApiError(400,'Выберите игрока.');
     return {type,targetId:body.targetId};
   }
@@ -124,5 +142,5 @@ export function parseAction(body:Record<string,unknown>):Action {
 export async function health() {
   const {error}=await db().from('svintus_rooms').select('code',{count:'exact',head:true});
   if(error)throw new ApiError(503,'База данных игры недоступна.');
-  return {ok:true,storage:'supabase',rules:'svintus-six-no-reverse'};
+  return {ok:true,storage:'supabase',rules:'svintus-two-to-six-bots-no-reverse'};
 }
