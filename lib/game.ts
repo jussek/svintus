@@ -7,6 +7,7 @@ export type Player = { id: string; name: string; hand: Card[]; score: number; is
 export type GameState = {
   players: Player[];
   hostId: string;
+  isPublic?: boolean;
   status: "lobby" | "playing" | "round_end" | "finished";
   round: number;
   dealerIndex: number;

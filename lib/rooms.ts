@@ -61,10 +61,31 @@ function refreshNewPhase(state:GameState,previous:GameState,now:number) {
   ))state.turnDeadline=now+state.turnSeconds*1000;
   return state;
 }
+export async function listRooms() {
+  const since=Date.now()-24*3600*1000;
+  const {data,error}=await db().from('svintus_rooms')
+    .select('code,state,created_at')
+    .eq('state->>status','lobby').eq('state->>isPublic','true')
+    .gte('created_at',new Date(since).toISOString())
+    .order('created_at',{ascending:false}).limit(60);
+  if(error)throw new ApiError(503,'Не удалось загрузить игры. Попробуйте ещё раз.');
+  // Old rooms are private. Discovery deliberately returns only lobby summaries,
+  // never a game state, participant identifiers, hands or session credentials.
+  const rooms=(data as Pick<Room,'code'|'state'|'created_at'>[] ?? [])
+    .filter(room=>room.state.isPublic===true && room.state.status==='lobby' &&
+      room.state.players.length>0 && room.state.players.length<6 && Date.parse(room.created_at)>=since)
+    .slice(0,30)
+    .map(room=>({code:room.code,hostName:room.state.players.find(player=>player.id===room.state.hostId)?.name ?? 'Игра',
+      playerCount:room.state.players.length,botCount:room.state.players.filter(player=>player.isBot===true).length,
+      turnSeconds:room.state.turnSeconds,createdAt:room.created_at}));
+  return {rooms};
+}
 export async function createRoom(body:Record<string,unknown>) {
   const name=nameOf(body.name);const seconds=body.turnSeconds ?? 5;
   if(seconds!==2 && seconds!==3 && seconds!==5)throw new ApiError(400,'Время хода: 2, 3 или 5 секунд.');
+  if(body.isPublic!==undefined && typeof body.isPublic!=='boolean')throw new ApiError(400,'Выберите открытую игру или вход по коду.');
   const playerId=randomUUID(), {token,session}=newSession(),state=createGame(playerId,name,seconds);
+  state.isPublic=body.isPublic===true;
   const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   for(let tries=0;tries<5;tries++){
     const code=Array.from(randomBytes(6),n=>alphabet[n%alphabet.length]).join('');

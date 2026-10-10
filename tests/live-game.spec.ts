@@ -49,6 +49,20 @@ test('six real browsers play, reconnect, declare/catch and clap using live Supab
     expect(response.status()).toBe(200);
     return (await response.json()).game as PublicGame;
   };
+  const holdOpeningForBrowserInspection = async () => {
+    // Preserve the actual first deal before six independently polling browsers
+    // inspect it. The live API suite covers the configured five-second expiry.
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const saved = await row();
+      expect(saved.state.status).toBe('playing');
+      if (saved.state.clap) saved.state.clap.deadline = Date.now() + 60000;
+      else saved.state.turnDeadline = Date.now() + 60000;
+      const { data, error } = await db.from('svintus_rooms').update({ state: saved.state, version: saved.version + 1, updated_at: new Date().toISOString() }).eq('code', ownCode!).eq('version', saved.version).select('code');
+      expect(error, 'Preserve only this browser test room’s opening phase').toBeNull();
+      if (data?.length === 1) return;
+    }
+    throw new Error('Could not preserve this browser test room’s actual first deal.');
+  };
   const holdClapForBrowserInspection = async () => {
     // Six browser polls and screenshots can consume a real five-second phase.
     // Timing/expiration is covered by live API tests. Here only this run's
@@ -71,9 +85,15 @@ test('six real browsers play, reconnect, declare/catch and clap using live Supab
     return await result.json() as Session;
   };
   const ready = async (page: Page) => {
+    if (new URL(page.url()).searchParams.has('room')) {
+      await expect(page.locator('main[data-screen="find"]')).toBeVisible();
+      await expect(page.getByLabel('Код комнаты')).toBeEnabled();
+      await expect(page.getByRole('button', { name: 'Войти по коду', exact: true })).toBeEnabled();
+      return;
+    }
     // Visible HTML arrives before React hydration. Confirm a real UI handler
     // works before typing into controlled fields or submitting the form.
-    await expect(page.locator('.form-submit')).toBeEnabled();
+    await expect(page.locator('main[data-screen="home"]')).toBeVisible();
     await page.getByRole('button', { name: 'Правила игры', exact: true }).click();
     const rules = page.getByRole('dialog', { name: 'Правила Свинтуса' });
     await expect(rules).toBeVisible();
@@ -91,12 +111,14 @@ test('six real browsers play, reconnect, declare/catch and clap using live Supab
     }
     await Promise.all([pages[0].goto('/'), pages[5].goto('/')]);
     await Promise.all([ready(pages[0]), ready(pages[5])]);
-    await expect(pages[0].getByRole('heading', { level: 1 })).toContainText('Подложи');
+    await expect(pages[0].getByRole('heading', { level: 1 })).toContainText('СВИНТУС');
     await Promise.all([
       pages[0].screenshot({ path: '/tmp/svintus-desktop-landing.png', fullPage: true }),
       pages[5].screenshot({ path: '/tmp/svintus-mobile-landing.png', fullPage: true }),
     ]);
     expect(await pages[5].evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await pages[0].getByRole('button', { name: /^Создать игру/ }).click();
+    await expect(pages[0].locator('main[data-screen="create"]')).toBeVisible();
     await pages[0].getByLabel('Твоё имя').fill('Игрок 1');
     await pages[0].getByRole('group', { name: 'Время на ход' }).getByRole('button').filter({ hasText: '5' }).click();
     const host = await submit(pages[0], 'Создать комнату', '/api/rooms');
@@ -104,7 +126,7 @@ test('six real browsers play, reconnect, declare/catch and clap using live Supab
     ownCode = host.code;
     expect(host.game.turnSeconds).toBe(5);
     await expect(pages[0].locator('.lobby-seat.occupied')).toHaveCount(1);
-    await expect(pages[0].getByRole('button', { name: 'Нужен ещё один' })).toBeDisabled();
+    await expect(pages[0].getByRole('button', { name: 'Раздать карты!', exact: true })).toBeDisabled();
 
     // Lose the first guest's response only after the real server has committed
     // its seat. Retrying through the UI must recover that exact seat/token.
@@ -125,14 +147,14 @@ test('six real browsers play, reconnect, declare/catch and clap using live Supab
         await route.abort('failed');
       } else await route.continue();
     });
-    await firstGuestPage.getByRole('button', { name: 'Занять своё место', exact: true }).click();
+    await firstGuestPage.getByRole('button', { name: 'Войти по коду', exact: true }).click();
     await expect(firstGuestPage.getByRole('alert')).toBeVisible();
     await expect(pages[0].locator('.lobby-seat.occupied')).toHaveCount(2);
-    await expect(firstGuestPage.getByRole('button', { name: 'Занять своё место', exact: true })).toBeEnabled();
+    await expect(firstGuestPage.getByRole('button', { name: 'Войти по коду', exact: true })).toBeEnabled();
     await firstGuestPage.reload();
     await ready(firstGuestPage);
     await firstGuestPage.getByLabel('Твоё имя').fill('Игрок 2');
-    const recoveredGuest = await submit(firstGuestPage, 'Занять своё место', `/api/rooms/${ownCode}/join`);
+    const recoveredGuest = await submit(firstGuestPage, 'Войти по коду', `/api/rooms/${ownCode}/join`);
     expect(recoveredGuest.playerId).toBe(lostResponse!.playerId);
     expect(recoveredGuest.token).toBe(lostResponse!.token);
     expect(recoveredGuest.game.players.length).toBe(2);
@@ -145,12 +167,15 @@ test('six real browsers play, reconnect, declare/catch and clap using live Supab
       await ready(page);
       await page.getByLabel('Твоё имя').fill(`Игрок ${index + 3}`);
       await expect(page.getByLabel('Код комнаты')).toHaveValue(ownCode!);
-      return await submit(page, 'Занять своё место', `/api/rooms/${ownCode}/join`);
+      return await submit(page, 'Войти по коду', `/api/rooms/${ownCode}/join`);
     }));
     sessions.push(...guests);
     await expect(pages[0].locator('.lobby-seat.occupied')).toHaveCount(6);
     await pages[0].screenshot({ path: '/tmp/svintus-desktop-lobby.png', fullPage: true });
-    await submit(pages[0], 'Раздать карты!', `/api/rooms/${ownCode}/action`);
+    const started = await submit(pages[0], 'Раздать карты!', `/api/rooms/${ownCode}/action`);
+    expect(started.game.players.map(player => player.cardCount)).toEqual([8, 8, 8, 8, 8, 8]);
+    expect(started.game.hand).toHaveLength(8);
+    await holdOpeningForBrowserInspection();
     const initialViews = await Promise.all(sessions.map((_, index) => gameView(index)));
     expect(initialViews.map(game => game.hand.length)).toEqual([8, 8, 8, 8, 8, 8]);
     expect(new Set(initialViews.flatMap(game => game.hand.map(card => card.id))).size).toBe(48);
@@ -185,27 +210,27 @@ test('six real browsers play, reconnect, declare/catch and clap using live Supab
     const oneCard = [{ kind: 'number', color: 'red', value: 2 }, { kind: 'number', color: 'blue', value: 6 }] as Definition[];
     await seed([oneCard]);
     await expect(pages[0].locator('.hand-card')).toHaveCount(2);
-    await pages[0].getByRole('button', { name: 'Красный, 2, сыграть', exact: true }).click();
+    await pages[0].getByRole('button', { name: 'Красный, 2, сыграть', exact: true }).click({ position: { x: 12, y: 30 } });
     await expect(pages[0].locator('.hand-card')).toHaveCount(1);
     const declaration = pages[0].getByRole('button', { name: 'Свинтус!', exact: true });
     await expect(declaration).toBeEnabled();
-    await expect(pages[1].getByRole('button', { name: 'Поймать!', exact: true })).toBeEnabled();
+    await expect(pages[1].getByRole('button', { name: 'Поймать Игрок 1', exact: true })).toBeEnabled();
     await declaration.click();
     await expect(declaration).toBeDisabled();
-    await expect(pages[1].getByRole('button', { name: 'Поймать!', exact: true })).toHaveCount(0);
+    await expect(pages[1].getByRole('button', { name: 'Поймать Игрок 1', exact: true })).toHaveCount(0);
     expect((await gameView(0)).hand.length).toBe(1);
 
     await seed([oneCard]);
     await expect(pages[0].locator('.hand-card')).toHaveCount(2);
-    await pages[0].getByRole('button', { name: 'Красный, 2, сыграть', exact: true }).click();
-    await expect(pages[1].getByRole('button', { name: 'Поймать!', exact: true })).toBeEnabled();
-    await pages[1].getByRole('button', { name: 'Поймать!', exact: true }).click();
+    await pages[0].getByRole('button', { name: 'Красный, 2, сыграть', exact: true }).click({ position: { x: 12, y: 30 } });
+    await expect(pages[1].getByRole('button', { name: 'Поймать Игрок 1', exact: true })).toBeEnabled();
+    await pages[1].getByRole('button', { name: 'Поймать Игрок 1', exact: true }).click();
     await expect(pages[0].locator('.hand-card')).toHaveCount(4);
     await expect(pages[0].getByRole('button', { name: 'Свинтус!', exact: true })).toBeDisabled();
 
     await seed([[{ kind: 'clap', color: 'red' }, { kind: 'number', color: 'blue', value: 6 }]]);
     await expect(pages[0].locator('.hand-card')).toHaveCount(2);
-    await pages[0].getByRole('button', { name: 'Красный, Хлопкопыт, сыграть', exact: true }).click();
+    await pages[0].getByRole('button', { name: 'Красный, Хлопкопыт, сыграть', exact: true }).click({ position: { x: 12, y: 30 } });
     const clapDialog = (page: Page) => page.getByRole('dialog', { name: 'Хлопкопыт — нажми Хлоп!' });
     await expect(clapDialog(pages[0])).toBeVisible();
     await holdClapForBrowserInspection();
@@ -214,7 +239,10 @@ test('six real browsers play, reconnect, declare/catch and clap using live Supab
     await Promise.all(pages.slice(0, 5).map(page => clapDialog(page).getByRole('button', { name: 'ХЛОП!', exact: true }).click()));
     await clapDialog(pages[5]).getByRole('button', { name: 'ХЛОП!', exact: true }).click();
     await Promise.all(pages.map(page => expect(clapDialog(page)).toHaveCount(0)));
-    await expect(pages[5].locator('.hand-card')).toHaveCount(10);
+    expect((await gameView(5)).hand).toHaveLength(10);
+    await expect(pages[5].locator('.hand-card')).toHaveCount(8);
+    await pages[5].getByRole('button', { name: 'Следующие карты', exact: true }).click();
+    await expect(pages[5].locator('.hand-card')).toHaveCount(2);
 
     await seed([
       [{ kind: 'number', color: 'red', value: 2 }],
@@ -224,7 +252,7 @@ test('six real browsers play, reconnect, declare/catch and clap using live Supab
       Array.from({ length: 3 }, (_, index) => ({ kind: 'number', color: 'green', value: index + 2 } as Definition)),
       [{ kind: 'number', color: 'orange', value: 3 }],
     ]);
-    await pages[0].getByRole('button', { name: 'Красный, 2, сыграть', exact: true }).click();
+    await pages[0].getByRole('button', { name: 'Красный, 2, сыграть', exact: true }).click({ position: { x: 12, y: 30 } });
     await Promise.all(pages.map(page => expect(page.locator('.score-row')).toHaveCount(6)));
     await expect(pages[0].getByRole('heading', { name: /Игрок 1.*выигрывает раунд/ })).toBeVisible();
     await expect(pages[0].locator('.score-leader .score-points')).toHaveText('0 очков');

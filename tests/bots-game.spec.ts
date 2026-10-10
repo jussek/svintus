@@ -64,12 +64,16 @@ test('the host manages lobby bots and plays a two-player game with a real autono
   try {
     await page.goto('/');
     // React handlers must be hydrated before filling controlled fields.
-    await expect(page.locator('.form-submit')).toBeEnabled();
+    await expect(page.locator('main[data-screen="home"]')).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Создать игру/ })).toBeEnabled();
     await page.getByRole('button', { name: 'Правила игры', exact: true }).click();
     const rules = page.getByRole('dialog', { name: 'Правила Свинтуса' });
     await expect(rules).toBeVisible();
     await expect(rules).toContainText(/2.*6/);
     await rules.getByRole('button', { name: 'Закрыть', exact: true }).click();
+    await page.getByRole('button', { name: /^Создать игру/ }).click();
+    await expect(page.locator('main[data-screen="create"]')).toBeVisible();
+    await expect(page.getByLabel('Твоё имя')).toBeEnabled();
     await page.getByLabel('Твоё имя').fill('Хозяин с ботами');
     await page.getByRole('group', { name: 'Время на ход' }).getByRole('button').filter({ hasText: '5' }).click();
     host = await submit('Создать комнату', '/api/rooms') as Session;
@@ -77,7 +81,7 @@ test('the host manages lobby bots and plays a two-player game with a real autono
     assertPublic(host.game);
     expect(host.game.players).toHaveLength(1);
     expect(host.game.players[0].isBot).toBe(false);
-    await expect(page.getByRole('button', { name: 'Нужен ещё один', exact: true })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Раздать карты!', exact: true })).toBeDisabled();
 
     // Every supported lobby size must enable starting once a second seat exists.
     for (let count = 2; count <= 6; count++) {
@@ -90,7 +94,7 @@ test('the host manages lobby bots and plays a two-player game with a real autono
       await expect(page.locator('.lobby-seat.bot-seat')).toHaveCount(count - 1);
       await expect(page.getByRole('button', { name: 'Раздать карты!', exact: true })).toBeEnabled();
     }
-    await expect(page.getByRole('button', { name: 'Добавить бота', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Добавить бота', exact: true })).toBeDisabled();
     const fullLobby = await row();
     expect(Object.keys(fullLobby.sessions), 'Bots never receive player authentication sessions').toEqual([host.playerId]);
 
@@ -169,6 +173,17 @@ test('the host manages lobby bots and plays a two-player game with a real autono
     await expect(page.locator('.hand-card')).toHaveCount(8);
     await expect.poll(() => page.locator('.hand-card img').evaluateAll(images => images.every(image => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
     await noHorizontalOverflow(page);
+    for (const viewport of [{ width: 320, height: 568 }, { width: 667, height: 375 }, { width: 390, height: 844 }]) {
+      await page.setViewportSize(viewport);
+      const botLabel = page.locator('.opponent .bot-tag');
+      await expect(botLabel).toBeVisible();
+      expect(await botLabel.evaluate(element => Number.parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(7);
+      await noHorizontalOverflow(page);
+      await page.getByRole('button', { name: `Об игроке ${remainingBot.name}`, exact: true }).click();
+      const info = page.getByRole('dialog', { name: 'Участник игры', exact: true });
+      await expect(info.getByRole('heading')).toHaveText(remainingBot.name);
+      await info.getByRole('button', { name: 'Закрыть', exact: true }).click();
+    }
     // Restore the configured five-second timer for the actual screenshot.
     await save(saved => {
       expect(saved.players[saved.turnIndex].id).toBe(host.playerId);
