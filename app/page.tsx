@@ -1053,7 +1053,7 @@ export default function Home() {
                 <div className="form-settings">
                   <fieldset>
                     <legend>Доступ к столу</legend>
-                    <div className="segmented">
+                    <div className="segmented access-options">
                       <button
                         type="button"
                         className={isPublic ? "selected" : ""}

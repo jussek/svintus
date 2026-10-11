@@ -505,6 +505,10 @@ input::placeholder { color: #587080; opacity: 1; }
   border-color: #174f71;
   box-shadow: 0 3px 0 #103b56;
 }
+.segmented.access-options button,
+.segmented.access-options button.selected {
+  color: #000000;
+}
 .color-choice { color: #10202d; border-color: #ffffff; }
 .chat-silence { color: #785a13; }
 .button {
