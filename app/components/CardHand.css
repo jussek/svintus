@@ -52,9 +52,8 @@
   transform: rotate(var(--sv-card-rotation));
   transform-origin: 50% 100%;
   transition:
-    transform 0.12s ease,
-    box-shadow 0.12s ease,
-    opacity 0.12s ease;
+    transform 240ms cubic-bezier(.22,.75,.24,1),
+    box-shadow 240ms ease;
   touch-action: none;
   cursor: grab;
   z-index: calc(var(--sv-card-index) + 1);
@@ -110,7 +109,10 @@
   z-index: 20;
 }
 .sv-hand .sv-hand-card.sv-hand-dragging {
-  opacity: 0.22;
+  opacity: 0;
+}
+.sv-hand .sv-hand-card[data-motion-hidden] {
+  opacity: 0 !important;
 }
 
 .sv-hand-corner {
@@ -118,13 +120,13 @@
   top: 3px;
   left: 3px;
   min-width: 20px;
-  height: 23px;
+  height: 26px;
   padding: 1px 3px;
   border: 1px solid #fff9;
   border-radius: 5px;
   box-shadow: 0 1px 3px #0004;
   font:
-    800 17px/19px Arial,
+    800 19px/22px Arial,
     sans-serif;
   letter-spacing: -1px;
   text-align: center;
@@ -154,7 +156,7 @@
   background: #ffe88b;
   border-radius: 4px;
   font:
-    800 10px/15px Arial,
+    800 13px/18px Arial,
     sans-serif;
 }
 .sv-hand-new {
@@ -167,8 +169,8 @@
   bottom: 4px;
   left: 4px;
   width: 20px;
-  font-size: 18px;
-  line-height: 22px;
+  font-size: 20px;
+  line-height: 25px;
   text-align: center;
 }
 
@@ -186,7 +188,7 @@
 }
 .sv-hand-guide {
   font:
-    500 11px/15px Arial,
+    500 14px/18px Arial,
     sans-serif;
   text-align: center;
   white-space: nowrap;
@@ -202,7 +204,7 @@
   color: #fff7df;
   background: #ffffff12;
   font:
-    600 30px/35px Arial,
+    600 32px/38px Arial,
     sans-serif;
   cursor: pointer;
   pointer-events: auto;
@@ -224,8 +226,10 @@
   border: 2px solid #fff8e8;
   border-radius: 9px;
   box-shadow: 0 12px 22px #002b4055;
-  z-index: 70;
+  z-index: 300;
   pointer-events: none;
+  max-width: none;
+  will-change: transform, left, top;
 }
 .sv-hand-floating {
   --sv-floating-width: 86px;
@@ -262,7 +266,7 @@
   color: #153e2d;
   background: #fff0a1;
   font:
-    700 12px/15px Arial,
+    700 15px/18px Arial,
     sans-serif;
   white-space: nowrap;
 }
@@ -308,15 +312,15 @@
   }
   .sv-hand-corner {
     min-width: 18px;
-    height: 21px;
-    font-size: 15px;
-    line-height: 18px;
+    height: 25px;
+    font-size: 18px;
+    line-height: 21px;
   }
   .sv-hand-fan {
     inset-inline: 10px;
   }
   .sv-hand-guide {
-    font-size: 10px;
+    font-size: 13px;
   }
 }
 
@@ -335,9 +339,9 @@
   }
   .sv-hand-corner {
     min-width: 18px;
-    height: 21px;
-    font-size: 15px;
-    line-height: 18px;
+    height: 25px;
+    font-size: 18px;
+    line-height: 21px;
   }
 }
 
@@ -361,13 +365,13 @@
   }
   .sv-hand-corner {
     min-width: 17px;
-    height: 20px;
-    font-size: 14px;
-    line-height: 17px;
+    height: 24px;
+    font-size: 17px;
+    line-height: 20px;
   }
   .sv-hand-new {
-    font-size: 8px;
-    line-height: 12px;
+    font-size: 11px;
+    line-height: 15px;
   }
   .sv-hand-floating {
     --sv-floating-width: 64px;

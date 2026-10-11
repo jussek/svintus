@@ -816,6 +816,7 @@ export default function Home() {
     game.players[game.turnIndex]?.id === game.meId;
   const isHost = !!game && game.hostId === game.meId;
   const currentPlayer = game?.players[game.turnIndex];
+  const actingPlayerId = game?.clap ? null : game?.colorChoicePlayerId ?? currentPlayer?.id;
   const clapResponded = !!game?.clap?.responded.includes(game.meId);
   const me = game?.players.find((player) => player.id === game.meId);
   const inspectedPlayer = game?.players.find(
@@ -1552,11 +1553,12 @@ export default function Home() {
                       return (
                         <div
                           key={player.id}
-                          className={`opponent ${currentPlayer?.id === player.id ? "opponent-active" : ""}`}
+                          className={`opponent ${actingPlayerId === player.id ? "opponent-active" : ""}`}
+                          data-current-player={actingPlayerId === player.id ? "true" : "false"}
                         >
                           <button
                             className="opponent-info"
-                            aria-label={`Об игроке ${player.name}`}
+                            aria-label={`Об игроке ${player.name}${actingPlayerId === player.id ? ", сейчас ходит" : ""}`}
                             onClick={() => setPlayerInfoId(player.id)}
                           />
                           <Avatar player={player} index={index} small />
@@ -1669,7 +1671,8 @@ export default function Home() {
                     </div>
                   )}
                 </div>
-                <div className="hand-toolbar">
+                <div className={`hand-toolbar ${actingPlayerId === game.meId ? "hand-toolbar-active" : ""}`}
+                  data-current-player={actingPlayerId === game.meId ? "true" : "false"}>
                   <span>
                     <b>{me?.name}</b> · {game.hand.length} карт
                   </span>

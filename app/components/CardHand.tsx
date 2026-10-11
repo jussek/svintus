@@ -121,6 +121,29 @@ function inDropZone(
   );
 }
 
+// Recover the unrotated border box, including the fan's bottom transform origin.
+// Bounding-box centres alone shift a rotated card away from its actual slot.
+function cardPose(element: HTMLElement) {
+  const rect = element.getBoundingClientRect();
+  const style = getComputedStyle(element);
+  const matrix = new DOMMatrix(style.transform === "none" ? undefined : style.transform);
+  const [ox, oy] = style.transformOrigin.split(" ").map(Number.parseFloat);
+  const width = element.offsetWidth;
+  const height = element.offsetHeight;
+  const corners = [[0, 0], [width, 0], [0, height], [width, height]].map(([x, y]) => ({
+    x: matrix.a * (x - ox) + matrix.c * (y - oy) + matrix.e + ox,
+    y: matrix.b * (x - ox) + matrix.d * (y - oy) + matrix.f + oy,
+  }));
+  return {
+    left: `${rect.left - Math.min(...corners.map(p => p.x))}px`,
+    top: `${rect.top - Math.min(...corners.map(p => p.y))}px`,
+    width: `${width}px`,
+    height: `${height}px`,
+    transform: matrix.toString(),
+    transformOrigin: style.transformOrigin,
+  };
+}
+
 export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
   // Pointer release must read the most recent poll, rather than its starting render.
   const latest = useRef({ game, busy, onPlay, dropTargetRef });
@@ -134,6 +157,7 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
   const previousPositions = useRef(new Map<string, { x: number; y: number }>());
   const moveFrame = useRef<number | null>(null);
   const flights = useRef(new Set<HTMLImageElement>());
+  const floatingElement = useRef<HTMLDivElement | null>(null);
   const [floating, setFloating] = useState<FloatingCard | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [page, setPage] = useState({
@@ -167,7 +191,7 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
     highlightedTarget.current = null;
   };
 
-  const cancelGesture = (suppress = true) => {
+  const cancelGesture = (suppress = true, returnToHand = true) => {
     if (moveFrame.current !== null) {
       cancelAnimationFrame(moveFrame.current);
       moveFrame.current = null;
@@ -175,6 +199,27 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
     const current = gesture.current;
     gesture.current = null;
     if (current) {
+      const preview = floatingElement.current?.querySelector("img");
+      const card = latest.current.game.hand.find(owned => owned.id === current.cardId);
+      if (mounted.current && returnToHand && current.moved && preview && card && current.button.isConnected) {
+        const motion = makeMotion(card, preview, current.button, "return");
+        if (motion) {
+          // Wait one frame for selection to clear before measuring the fan slot.
+          requestAnimationFrame(() => {
+            if (!motion.image.isConnected || !current.button.isConnected) {
+              motion.cleanup();
+              return;
+            }
+            for (const animation of current.button.getAnimations()) animation.cancel();
+            const destination = cardPose(current.button);
+            const animation = motion.image.animate([motion.from, destination], {
+              duration: 340, easing: "cubic-bezier(.22,.75,.24,1)", fill: "forwards",
+            });
+            animation.onfinish = motion.cleanup;
+          });
+        }
+      }
+      if (mounted.current && current.moved) setSelectedId(null);
       if (suppress)
         suppressClick.current = { id: current.cardId, until: Date.now() + 700 };
       if (current.button.hasPointerCapture(current.pointerId))
@@ -189,56 +234,71 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
     return !current.busy && !submitting.current && playable(card, current.game);
   };
 
-  const submit = (id: string, origin?: { x: number; y: number }) => {
+  const makeMotion = (card: Card, source: HTMLElement, button: HTMLButtonElement, kind: "return" | "play") => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return null;
+    const from = cardPose(source);
+    const image = document.createElement("img");
+    image.src = cardImage(card);
+    image.alt = "";
+    image.setAttribute("aria-hidden", "true");
+    image.className = "sv-hand-flight";
+    image.dataset.motion = kind;
+    image.dataset.motionCard = card.id;
+    Object.assign(image.style, from);
+    const motionId = crypto.randomUUID();
+    button.dataset.motionHidden = motionId;
+    document.body.append(image);
+    flights.current.add(image);
+    const cleanup = () => {
+      image.remove();
+      flights.current.delete(image);
+      if (button.dataset.motionHidden === motionId)
+        button.removeAttribute("data-motion-hidden");
+    };
+    return { image, from, cleanup };
+  };
+
+  const submit = (id: string, preview?: HTMLElement | null) => {
     const card = latest.current.game.hand.find((owned) => owned.id === id);
-    if (!card || !canSubmit(card)) return;
+    if (!card || !canSubmit(card)) return false;
     submitting.current = true;
     // Visual feedback never delays the authoritative request or one-card race.
-    if (
-      card.kind !== "wild" &&
-      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    ) {
-      const source = Array.from(
+    let finishMotion: (() => void) | undefined;
+    if (card.kind !== "wild") {
+      const button = Array.from(
         handElement.current?.querySelectorAll<HTMLButtonElement>(
           "button[data-card-id]",
         ) ?? [],
       )
-        .find((element) => element.dataset.cardId === id)
-        ?.getBoundingClientRect();
+        .find((element) => element.dataset.cardId === id);
       const target = latest.current.dropTargetRef.current
-        ?.querySelector(".discard-wrap img")
-        ?.getBoundingClientRect();
-      if (source && target) {
-        const image = document.createElement("img");
-        image.src = cardImage(card);
-        image.alt = "";
-        image.setAttribute("aria-hidden", "true");
-        image.className = "sv-hand-flight";
-        document.body.append(image);
-        flights.current.add(image);
-        const animation = image.animate(
-          [
-            {
-              left: `${origin?.x ?? source.x + source.width / 2}px`,
-              top: `${origin?.y ?? source.y + source.height / 2}px`,
-              transform: origin
-                ? "translate(-50%, -86%) rotate(-6deg)"
-                : "translate(-50%, -50%) rotate(-6deg)",
-              opacity: 1,
-            },
-            {
-              left: `${target.x + target.width / 2}px`,
-              top: `${target.y + target.height / 2}px`,
-              transform: "translate(-50%, -50%) rotate(0) scale(.8)",
-              opacity: 0,
-            },
-          ],
-          { duration: 360, easing: "cubic-bezier(.2,.8,.2,1)", fill: "both" },
-        );
-        animation.onfinish = () => {
-          image.remove();
-          flights.current.delete(image);
-        };
+        ?.querySelector<HTMLElement>(".discard-wrap img");
+      if (button && target) {
+        // The stack is already the final pose. A second entrance animation
+        // would move its image underneath the travelling card.
+        for (const animation of target.getAnimations()) animation.finish();
+        const motion = makeMotion(card, preview ?? button, button, "play");
+        if (motion) {
+          const table = latest.current.dropTargetRef.current!;
+          table.dataset.cardFlight = card.id;
+          let arrived = false;
+          let settled = false;
+          const cleanup = () => {
+            if (arrived && settled) {
+              table.querySelector(".discard-wrap img")?.setAttribute("data-landed", "true");
+              motion.cleanup();
+              if (table.dataset.cardFlight === card.id) delete table.dataset.cardFlight;
+            }
+          };
+          const animation = motion.image.animate([motion.from, cardPose(target)], {
+            duration: 420, easing: "cubic-bezier(.2,.65,.25,1)", fill: "forwards",
+          });
+          animation.onfinish = () => { arrived = true; cleanup(); };
+          finishMotion = () => {
+            // Let React paint the authoritative card before handing off the image.
+            requestAnimationFrame(() => { settled = true; cleanup(); });
+          };
+        }
       }
     }
     try {
@@ -247,10 +307,13 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
         .catch(() => undefined)
         .finally(() => {
           submitting.current = false;
+          finishMotion?.();
         });
     } catch {
       submitting.current = false;
+      finishMotion?.();
     }
+    return true;
   };
 
   useEffect(() => {
@@ -271,6 +334,9 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
         image.remove();
       }
       flights.current.clear();
+      for (const button of handElement.current?.querySelectorAll("[data-motion-hidden]") ?? [])
+        button.removeAttribute("data-motion-hidden");
+      latest.current.dropTargetRef.current?.removeAttribute("data-card-flight");
       window.removeEventListener("blur", cancel);
       window.removeEventListener("resize", cancel);
       window.visualViewport?.removeEventListener("resize", cancel);
@@ -360,6 +426,14 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
       gesture.current
     )
       return;
+    for (const image of flights.current) {
+      if (image.dataset.motionCard === card.id) {
+        for (const animation of image.getAnimations()) animation.cancel();
+        image.remove();
+        flights.current.delete(image);
+      }
+    }
+    event.currentTarget.removeAttribute("data-motion-hidden");
     setSelectedId(card.id);
     event.currentTarget.setPointerCapture(event.pointerId);
     gesture.current = {
@@ -443,13 +517,12 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
         event.clientY,
       );
     const upwardSwipe = dy <= -64 && Math.abs(dx) <= Math.max(56, -dy * 0.72);
-    cancelGesture(moved);
-    if (
+    const played =
       moved &&
       current.context === latestContext &&
-      (tableDrop || upwardSwipe)
-    )
-      submit(current.cardId, { x: event.clientX, y: event.clientY });
+      (tableDrop || upwardSwipe) &&
+      submit(current.cardId, floatingElement.current?.querySelector("img"));
+    cancelGesture(moved, !played);
   };
 
   const changePage = (direction: -1 | 1) => {
@@ -573,7 +646,7 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
           {hasPages
             ? `${start + 1}–${Math.min(start + PAGE_SIZE, game.hand.length)} из ${game.hand.length} · `
             : ""}
-          {game.clap ? "Скорее жми «Хлоп!»" : "Потяни карту на стол ↑"}
+          {game.clap ? "Скорее жми «Хлоп!»" : hasPages ? "На стол ↑" : "Потяни карту на стол ↑"}
         </span>
         {hasPages && (
           <button
@@ -590,6 +663,7 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
       {floating &&
         createPortal(
           <div
+            ref={floatingElement}
             className={`sv-hand-floating ${floating.allowed ? "" : "sv-hand-floating-blocked"} ${floating.overTable ? "sv-hand-floating-ready" : ""}`}
             style={
               {

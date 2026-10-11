@@ -68,7 +68,7 @@ button {
   touch-action: manipulation;
 }
 input {
-  font-size: 16px;
+  font-size: 18px;
   min-width: 0;
   width: 100%;
   height: 46px;
@@ -93,7 +93,7 @@ fieldset {
 }
 legend,
 label {
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.1px;
   line-height: 1.3;
@@ -105,7 +105,7 @@ legend {
 legend small {
   float: right;
   color: #819277;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 400;
 }
 label {
@@ -156,7 +156,7 @@ label {
   flex: 1;
   min-width: 0;
   text-align: center;
-  font-size: 19px;
+  font-size: 21px;
   font-weight: 800;
   letter-spacing: -0.6px;
 }
@@ -171,7 +171,7 @@ label {
   color: var(--orange);
 }
 .brand b {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 900;
   letter-spacing: -1px;
 }
@@ -179,7 +179,7 @@ label {
   color: var(--orange);
 }
 .brand small {
-  font-size: 7px;
+  font-size: 10px;
   letter-spacing: 1px;
   border: 1px solid #f3df8b66;
   color: var(--yellow);
@@ -191,7 +191,7 @@ label {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 900;
   letter-spacing: -1.5px;
 }
@@ -225,7 +225,7 @@ label {
 .eyebrow {
   display: block;
   text-transform: uppercase;
-  font-size: 10px;
+  font-size: 13px;
   letter-spacing: 1.7px;
   font-weight: 700;
   color: var(--cream-muted);
@@ -239,7 +239,7 @@ label {
   min-height: 46px;
   flex-shrink: 0;
   border-radius: 13px;
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.2;
   font-weight: 700;
   box-shadow: 0 3px 0 #00000015;
@@ -363,7 +363,7 @@ label {
 .home-spark {
   position: absolute;
   color: var(--yellow);
-  font-size: 35px;
+  font-size: 37px;
 }
 .spark-one {
   left: 14%;
@@ -373,7 +373,7 @@ label {
 .spark-two {
   right: 9%;
   top: 69%;
-  font-size: 21px;
+  font-size: 23px;
 }
 .home-card-dot {
   position: absolute;
@@ -389,7 +389,7 @@ label {
   flex-shrink: 0;
 }
 .home-heading h1 {
-  font-size: 54px;
+  font-size: 56px;
   font-weight: 900;
   line-height: 0.95;
   letter-spacing: -3px;
@@ -397,14 +397,14 @@ label {
   text-shadow: 0 4px 0 #0a281e;
 }
 .home-heading .eyebrow {
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 1.7px;
   color: var(--yellow);
   margin-bottom: 12px;
 }
 .home-heading h1 > span {
   display: block;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 400;
   line-height: 1.5;
   letter-spacing: 0;
@@ -460,13 +460,13 @@ label {
 }
 .home-action b {
   display: block;
-  font-size: 21px;
+  font-size: 23px;
   font-weight: 800;
   letter-spacing: -0.5px;
 }
 .home-action small {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   margin-top: 6px;
   opacity: 0.8;
   line-height: 1.3;
@@ -477,7 +477,7 @@ label {
   align-items: center;
   gap: 12px;
   color: #b2cbb0;
-  font-size: 9px;
+  font-size: 12px;
   padding: 2px 0;
 }
 .home-footer i {
@@ -488,7 +488,7 @@ label {
 }
 .home-footer button {
   background: none;
-  font-size: 10px;
+  font-size: 13px;
   color: var(--yellow);
   padding: 10px 0;
   margin-left: 5px;
@@ -560,18 +560,18 @@ label {
 }
 .game-preview strong {
   display: block;
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.3;
 }
 .game-preview span {
   display: block;
-  font-size: 10px;
+  font-size: 13px;
   margin-top: 6px;
   color: #6c7b60;
 }
 .game-preview small {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   margin-top: 8px;
   color: #849177;
 }
@@ -593,7 +593,7 @@ label {
   border-radius: 10px;
   flex: 1;
   padding: 8px 10px;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
 }
 .segmented button.selected {
@@ -606,7 +606,7 @@ label {
   opacity: 0.4;
 }
 .setting-note {
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.5;
   color: #849078;
   margin-top: 10px;
@@ -624,7 +624,7 @@ label {
   min-height: 51px;
 }
 .form-bottom p {
-  font-size: 10px;
+  font-size: 13px;
   color: #9fba9d;
   text-align: center;
   line-height: 1.5;
@@ -684,7 +684,7 @@ label {
   justify-content: center;
   background: var(--yellow);
   color: var(--ink);
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 800;
 }
 .room-card-copy {
@@ -692,13 +692,13 @@ label {
   min-width: 0;
 }
 .room-card-copy strong {
-  font-size: 14px;
+  font-size: 17px;
   line-height: 1.3;
   display: block;
   word-break: break-word;
 }
 .room-card-copy > span {
-  font-size: 10px;
+  font-size: 13px;
   color: #b1c7a7;
   display: block;
   margin-top: 6px;
@@ -706,7 +706,7 @@ label {
 }
 .room-card-copy small {
   font-family: monospace;
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 2px;
   color: var(--yellow);
   display: block;
@@ -738,11 +738,11 @@ label {
   height: 50px;
 }
 .empty-state h2 {
-  font-size: 18px;
+  font-size: 20px;
   letter-spacing: -0.5px;
 }
 .empty-state p {
-  font-size: 12px;
+  font-size: 15px;
   color: #aac4a2;
   line-height: 1.6;
   overflow-wrap: anywhere;
@@ -756,7 +756,7 @@ label {
   flex-shrink: 0;
 }
 .pagination > span {
-  font-size: 11px;
+  font-size: 14px;
   color: #abc2a2;
 }
 .find-bottom {
@@ -790,7 +790,7 @@ label {
   color: var(--orange);
 }
 .join-illustration > span {
-  font-size: 12px;
+  font-size: 15px;
 }
 .code-field {
   flex-shrink: 0;
@@ -801,7 +801,7 @@ label {
 }
 .code-input {
   font:
-    700 24px/1 ui-monospace,
+    700 26px/1 ui-monospace,
     SFMono-Regular,
     monospace;
   letter-spacing: 8px;
@@ -810,7 +810,7 @@ label {
   text-transform: uppercase;
 }
 .code-field p {
-  font-size: 10px;
+  font-size: 13px;
   color: #8a977e;
   text-align: center;
   margin-top: 11px;
@@ -832,10 +832,10 @@ label {
   padding: 25px;
 }
 .restoring-screen h2 {
-  font-size: 20px;
+  font-size: 22px;
 }
 .restoring-screen p {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--orange);
   text-align: center;
   overflow-wrap: anywhere;
@@ -858,14 +858,14 @@ label {
   padding: 0;
   min-height: 32px;
   font:
-    700 14px/1 ui-monospace,
+    700 17px/1 ui-monospace,
     monospace;
   color: var(--yellow);
   letter-spacing: 1.5px;
 }
 .room-code > span {
   font:
-    700 7px/1 Arial,
+    700 10px/1 Arial,
     sans-serif;
   letter-spacing: 1px;
   color: #abc4a2;
@@ -875,7 +875,7 @@ label {
   align-items: center;
   gap: 5px;
   white-space: nowrap;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--orange);
 }
 .connection > i {
@@ -891,7 +891,7 @@ label {
   background: #b8d0a8;
 }
 .round-label {
-  font-size: 9px;
+  font-size: 12px;
   color: #a9c4a1;
   white-space: nowrap;
 }
@@ -912,11 +912,11 @@ label {
   flex-shrink: 0;
 }
 .lobby-intro h2 {
-  font-size: 20px;
+  font-size: 22px;
   letter-spacing: -0.7px;
 }
 .lobby-intro > p {
-  font-size: 10px;
+  font-size: 13px;
   color: #a8c29f;
   line-height: 1.4;
 }
@@ -928,7 +928,7 @@ label {
   grid-row: 1 / 3;
   min-height: 44px;
   padding: 10px;
-  font-size: 10px;
+  font-size: 13px;
   gap: 6px;
 }
 .lobby-seats {
@@ -969,7 +969,7 @@ label {
   border-radius: 50%;
   background: var(--orange);
   color: var(--green-deep);
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 800;
   border: 2px solid #ffffff25;
 }
@@ -991,7 +991,7 @@ label {
 .avatar-small {
   width: 30px;
   height: 30px;
-  font-size: 14px;
+  font-size: 17px;
 }
 .empty-avatar {
   width: 32px;
@@ -1003,7 +1003,7 @@ label {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 14px;
 }
 .seat-copy {
   flex: 1;
@@ -1011,13 +1011,13 @@ label {
 }
 .seat-copy strong {
   display: block;
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.3;
   overflow-wrap: anywhere;
 }
 .seat-copy > span {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   margin-top: 6px;
   color: #a7c19f;
   line-height: 1.3;
@@ -1028,7 +1028,7 @@ label {
   border-radius: 4px;
   padding: 2px 4px;
   color: #b8dcd4;
-  font-size: 7px;
+  font-size: 10px;
   line-height: 1.1;
   letter-spacing: 0.7px;
   font-weight: 700;
@@ -1064,14 +1064,14 @@ label {
   min-height: 49px;
 }
 .lobby-start > p {
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.4;
   color: #9fb99a;
   margin-top: 9px;
   text-align: center;
 }
 .waiting-host {
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.6;
   color: #c1d2b8;
   text-align: center;
@@ -1116,7 +1116,7 @@ label {
 }
 .opponent > strong {
   display: block;
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.2;
   max-width: 100%;
   text-overflow: ellipsis;
@@ -1129,11 +1129,11 @@ label {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  font-size: 12px;
+  font-size: 15px;
   color: #e4e6c9;
 }
 .opponent-cards > .bot-tag {
-  font-size: 7px;
+  font-size: 10px;
   padding: 2px;
   margin-left: 2px;
 }
@@ -1153,7 +1153,7 @@ label {
   border-radius: 12px;
   background: #ff9375eb;
   color: var(--ink);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 800;
   min-height: 44px;
   animation: catchPulse 0.7s ease-in-out infinite alternate;
@@ -1218,7 +1218,7 @@ label {
   justify-content: center;
   gap: 12px;
   min-height: 27px;
-  font-size: 12px;
+  font-size: 15px;
   color: #d4e4bd;
   font-weight: 700;
 }
@@ -1283,14 +1283,14 @@ label {
   color: #e2e6b3;
 }
 .card-back > span {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 900;
   letter-spacing: -0.3px;
   margin-top: 3px;
 }
 .deck-caption,
 .discard-caption {
-  font-size: 8px;
+  font-size: 11px;
   color: #b6d0ab;
   white-space: nowrap;
 }
@@ -1302,7 +1302,7 @@ label {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 9px;
+  font-size: 12px;
   color: #cbdcbe;
   white-space: nowrap;
 }
@@ -1334,7 +1334,7 @@ label {
   bottom: 8px;
   background: var(--orange);
   color: var(--ink);
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 800;
   line-height: 1.4;
   padding: 6px 8px;
@@ -1354,12 +1354,12 @@ label {
   padding: 0 8px;
 }
 .silence-banner > span {
-  font-size: 10px;
+  font-size: 13px;
   color: var(--yellow);
 }
 .silence-banner > button {
   min-height: 44px;
-  font-size: 10px;
+  font-size: 13px;
   color: var(--yellow);
   border-radius: 8px;
   background: transparent;
@@ -1371,7 +1371,7 @@ label {
   justify-content: space-between;
   height: 32px;
   flex: 0 0 32px;
-  font-size: 11px;
+  font-size: 14px;
   color: #abc3a1;
   min-width: 0;
 }
@@ -1399,7 +1399,7 @@ label {
   flex: 1;
   min-width: 0;
   min-height: 46px;
-  font-size: 12px;
+  font-size: 15px;
   white-space: nowrap;
 }
 .declare-button {
@@ -1433,7 +1433,7 @@ label {
   background: none;
   padding: 0;
   color: #8fab83;
-  font-size: 9px;
+  font-size: 12px;
   text-align: left;
 }
 .game-log > span:nth-child(2) {
@@ -1468,16 +1468,16 @@ label {
 }
 .winner-star {
   display: inline-block;
-  font-size: 42px;
+  font-size: 44px;
   color: var(--yellow);
   line-height: 1;
   margin-bottom: 8px;
 }
 .scoreboard-heading .eyebrow {
-  font-size: 8px;
+  font-size: 11px;
 }
 .scoreboard-heading h2 {
-  font-size: 27px;
+  font-size: 29px;
   letter-spacing: -1px;
   line-height: 1.1;
   margin-top: 8px;
@@ -1485,14 +1485,14 @@ label {
 }
 .scoreboard-heading h2 > span {
   display: block;
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 400;
   letter-spacing: 0;
   margin-top: 6px;
   color: var(--orange);
 }
 .scoreboard-heading p {
-  font-size: 10px;
+  font-size: 13px;
   color: #a3bb9a;
   margin-top: 11px;
 }
@@ -1527,7 +1527,7 @@ label {
 }
 .score-rank {
   color: #7da175;
-  font-size: 11px;
+  font-size: 14px;
   min-width: 10px;
 }
 .score-row > div {
@@ -1535,7 +1535,7 @@ label {
   min-width: 0;
 }
 .score-row strong {
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.3;
   display: block;
   text-overflow: ellipsis;
@@ -1544,10 +1544,10 @@ label {
 }
 .score-row strong > .bot-tag {
   margin-left: 5px;
-  font-size: 7px;
+  font-size: 10px;
 }
 .score-row > div > span {
-  font-size: 8px;
+  font-size: 11px;
   color: var(--orange);
   margin-top: 3px;
   display: block;
@@ -1556,19 +1556,19 @@ label {
   color: var(--yellow);
 }
 .score-points {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 800;
   color: var(--cream);
   white-space: nowrap;
 }
 .score-points > small {
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 400;
   color: #94b188;
 }
 .svintus-explanation {
   text-align: center;
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.4;
   color: #b1cba7;
   overflow-wrap: anywhere;
@@ -1627,17 +1627,17 @@ label {
 }
 .dialog-heading .eyebrow {
   color: #7f9570;
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 1.5px;
 }
 .dialog-heading h2 {
-  font-size: 28px;
+  font-size: 30px;
   line-height: 1.06;
   letter-spacing: -1px;
   margin-top: 8px;
 }
 .dialog-heading > p {
-  font-size: 11px;
+  font-size: 14px;
   color: #8b987d;
   line-height: 1.5;
   margin-top: 10px;
@@ -1670,7 +1670,7 @@ label {
 .rule-content p {
   position: relative;
   padding-left: 29px;
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.65;
   color: #617552;
   overflow-wrap: anywhere;
@@ -1679,7 +1679,7 @@ label {
   position: absolute;
   left: 0;
   top: 2px;
-  font-size: 9px;
+  font-size: 12px;
   color: #9caa82;
   font-weight: 700;
 }
@@ -1709,7 +1709,7 @@ label {
   background: var(--card-color);
   color: #fffaf0;
   padding: 11px;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   border: 2px solid #ffffff88;
   border-radius: 13px;
@@ -1750,7 +1750,7 @@ label {
   border: 6px solid #ffc5a7;
   box-shadow: 0 7px 0 #ac5d3f33;
   font-weight: 900;
-  font-size: 32px;
+  font-size: 34px;
   letter-spacing: -1px;
 }
 .clap-button:active:not(:disabled) {
@@ -1792,13 +1792,13 @@ label {
   gap: 12px;
 }
 .chat-dialog .dialog-heading h2 {
-  font-size: 25px;
+  font-size: 27px;
 }
 .chat-dialog .segmented button {
-  font-size: 11px;
+  font-size: 14px;
 }
 .chat-silence {
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.4;
   color: #a68b36;
   flex-shrink: 0;
@@ -1824,7 +1824,7 @@ label {
   border-color: #efd5bf;
 }
 .chat-message strong {
-  font-size: 10px;
+  font-size: 13px;
   color: #63825a;
   display: block;
   line-height: 1.3;
@@ -1832,7 +1832,7 @@ label {
   overflow-wrap: anywhere;
 }
 .chat-message p {
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.5;
   color: #57704c;
   overflow-wrap: anywhere;
@@ -1841,13 +1841,13 @@ label {
 .chat-message time {
   display: block;
   text-align: right;
-  font-size: 8px;
+  font-size: 11px;
   color: #9caf88;
   margin-top: 3px;
 }
 .chat-messages .empty-state > p {
   color: #899b7b;
-  font-size: 11px;
+  font-size: 14px;
 }
 .chat-form {
   display: flex;
@@ -1862,7 +1862,7 @@ label {
 }
 .chat-form input {
   height: 46px;
-  font-size: 16px;
+  font-size: 18px;
 }
 .alert-toast,
 .toast {
@@ -1878,7 +1878,7 @@ label {
   gap: 10px;
   border-radius: 14px;
   padding: 11px 14px;
-  font-size: 12px;
+  font-size: 15px;
   line-height: 1.4;
   box-shadow: 0 8px 24px #0004;
   overflow-wrap: anywhere;
@@ -1918,7 +1918,7 @@ label {
     gap: 24px;
   }
   .home-heading h1 {
-    font-size: 65px;
+    font-size: 67px;
   }
   .home-art {
     min-height: 200px;
@@ -1927,13 +1927,13 @@ label {
     min-height: 90px;
   }
   .home-action b {
-    font-size: 23px;
+    font-size: 25px;
   }
   .home-action small {
-    font-size: 11px;
+    font-size: 14px;
   }
   .home-footer {
-    font-size: 11px;
+    font-size: 14px;
   }
   .form-screen,
   .find-screen {
@@ -1945,19 +1945,19 @@ label {
   }
   .name-field label,
   legend {
-    font-size: 13px;
+    font-size: 16px;
   }
   .game-preview {
     min-height: 97px;
   }
   .game-preview strong {
-    font-size: 15px;
+    font-size: 18px;
   }
   .game-preview span {
-    font-size: 11px;
+    font-size: 14px;
   }
   .game-preview small {
-    font-size: 10px;
+    font-size: 13px;
   }
   .create-form {
     gap: 20px;
@@ -1979,29 +1979,29 @@ label {
     height: 43px;
   }
   .seat-copy strong {
-    font-size: 14px;
+    font-size: 17px;
   }
   .seat-copy > span {
-    font-size: 10px;
+    font-size: 13px;
   }
   .lobby {
     gap: 20px;
   }
   .lobby-intro h2 {
-    font-size: 26px;
+    font-size: 28px;
   }
   .lobby-intro > p {
-    font-size: 12px;
+    font-size: 15px;
   }
   .lobby-controls > .button {
     min-height: 53px;
-    font-size: 14px;
+    font-size: 17px;
   }
   .opponents {
     flex-basis: 99px;
   }
   .opponent > strong {
-    font-size: 12px;
+    font-size: 15px;
   }
   .opponent .avatar-small {
     width: 34px;
@@ -2025,35 +2025,35 @@ label {
     height: 55px;
   }
   .card-back > span {
-    font-size: 13px;
+    font-size: 16px;
   }
   .table-status {
-    font-size: 14px;
+    font-size: 17px;
   }
   .table-cards {
     gap: 35px;
   }
   .active-color {
-    font-size: 10px;
+    font-size: 13px;
   }
   .hand-toolbar {
-    font-size: 12px;
+    font-size: 15px;
   }
   .turn-actions > .button {
     min-height: 49px;
-    font-size: 14px;
+    font-size: 17px;
   }
   .scoreboard-heading h2 {
-    font-size: 34px;
+    font-size: 36px;
   }
   .score-row {
     min-height: 50px;
   }
   .score-row strong {
-    font-size: 14px;
+    font-size: 17px;
   }
   .score-row > div > span {
-    font-size: 10px;
+    font-size: 13px;
   }
   .scoreboard-list {
     gap: 10px;
@@ -2093,13 +2093,13 @@ label {
     border-width: 2px;
   }
   .home-spark {
-    font-size: 25px;
+    font-size: 27px;
   }
   .home-heading h1 {
-    font-size: 45px;
+    font-size: 47px;
   }
   .home-heading h1 > span {
-    font-size: 10px;
+    font-size: 13px;
     margin-top: 9px;
   }
   .home-heading .eyebrow {
@@ -2111,17 +2111,17 @@ label {
     border-radius: 14px;
   }
   .home-action b {
-    font-size: 18px;
+    font-size: 20px;
   }
   .home-action small {
-    font-size: 8px;
+    font-size: 11px;
     margin-top: 4px;
   }
   .home-actions {
     gap: 10px;
   }
   .home-footer {
-    font-size: 8px;
+    font-size: 11px;
     gap: 9px;
   }
   .form-panel {
@@ -2145,21 +2145,21 @@ label {
     left: 24px;
   }
   .game-preview strong {
-    font-size: 12px;
+    font-size: 15px;
   }
   .game-preview span {
-    font-size: 9px;
+    font-size: 12px;
     margin-top: 5px;
   }
   .game-preview small {
-    font-size: 8px;
+    font-size: 11px;
     margin-top: 6px;
   }
   .form-settings {
     gap: 15px;
   }
   .setting-note {
-    font-size: 9px;
+    font-size: 12px;
     margin-top: 7px;
     min-height: 26px;
   }
@@ -2170,7 +2170,7 @@ label {
     min-height: 46px;
   }
   .form-bottom p {
-    font-size: 9px;
+    font-size: 12px;
   }
   .create-form {
     gap: 10px;
@@ -2189,13 +2189,13 @@ label {
     gap: 9px;
   }
   .lobby-intro h2 {
-    font-size: 16px;
+    font-size: 18px;
   }
   .lobby-intro > p {
-    font-size: 9px;
+    font-size: 12px;
   }
   .invite-button {
-    font-size: 9px;
+    font-size: 12px;
     gap: 5px;
     padding: 8px;
   }
@@ -2210,7 +2210,7 @@ label {
   .lobby-seat .avatar {
     width: 28px;
     height: 28px;
-    font-size: 13px;
+    font-size: 16px;
     border-width: 1px;
   }
   .empty-avatar {
@@ -2218,21 +2218,21 @@ label {
     height: 26px;
   }
   .seat-copy strong {
-    font-size: 10px;
+    font-size: 13px;
     line-height: 1.25;
   }
   .seat-copy > span {
-    font-size: 8px;
+    font-size: 11px;
     margin-top: 5px;
   }
   .lobby-controls > .button {
-    font-size: 11px;
+    font-size: 14px;
     min-height: 46px;
     padding: 9px;
     gap: 7px;
   }
   .lobby-start > p {
-    font-size: 8px;
+    font-size: 11px;
     margin-top: 7px;
   }
   .opponents {
@@ -2247,18 +2247,18 @@ label {
   .opponent .avatar-small {
     width: 22px;
     height: 22px;
-    font-size: 10px;
+    font-size: 13px;
     border-width: 1px;
   }
   .opponent > strong {
-    font-size: 8px;
+    font-size: 11px;
   }
   .opponent-cards {
-    font-size: 10px;
+    font-size: 13px;
     gap: 3px;
   }
   .opponent-cards > .bot-tag {
-    font-size: 7px;
+    font-size: 10px;
     padding: 1px;
   }
   .mini-card-back {
@@ -2274,7 +2274,7 @@ label {
   }
   .table-status {
     top: 4px;
-    font-size: 10px;
+    font-size: 13px;
     min-height: 24px;
     gap: 8px;
   }
@@ -2295,21 +2295,21 @@ label {
     height: 31px;
   }
   .card-back > span {
-    font-size: 8px;
+    font-size: 11px;
   }
   .card-back:before {
     inset: 3px;
   }
   .deck-caption,
   .discard-caption {
-    font-size: 6px;
+    font-size: 9px;
   }
   .table-cards {
     gap: 22px;
   }
   .active-color {
     bottom: 5px;
-    font-size: 7px;
+    font-size: 10px;
     gap: 4px;
   }
   .color-dot {
@@ -2317,7 +2317,7 @@ label {
     height: 10px;
   }
   .pending-badge {
-    font-size: 6px;
+    font-size: 9px;
     left: 5px;
     bottom: 5px;
     padding: 4px 6px;
@@ -2325,7 +2325,7 @@ label {
   .hand-toolbar {
     height: 25px;
     flex-basis: 25px;
-    font-size: 10px;
+    font-size: 13px;
   }
   .hand-toolbar > .chat-toggle {
     min-height: 25px;
@@ -2336,7 +2336,7 @@ label {
   }
   .turn-actions > .button {
     min-height: 44px;
-    font-size: 11px;
+    font-size: 14px;
     padding: 9px;
   }
   .play-area {
@@ -2349,19 +2349,19 @@ label {
     gap: 9px;
   }
   .winner-star {
-    font-size: 29px;
+    font-size: 31px;
     margin-bottom: 5px;
   }
   .scoreboard-heading h2 {
-    font-size: 23px;
+    font-size: 25px;
     margin-top: 6px;
   }
   .scoreboard-heading h2 > span {
-    font-size: 12px;
+    font-size: 15px;
     margin-top: 5px;
   }
   .scoreboard-heading p {
-    font-size: 9px;
+    font-size: 12px;
     margin-top: 8px;
   }
   .scoreboard-list {
@@ -2373,18 +2373,18 @@ label {
     gap: 7px;
   }
   .score-row strong {
-    font-size: 11px;
+    font-size: 14px;
   }
   .score-row .avatar-small {
     width: 26px;
     height: 26px;
-    font-size: 12px;
+    font-size: 15px;
   }
   .score-points {
-    font-size: 19px;
+    font-size: 21px;
   }
   .svintus-explanation {
-    font-size: 8px;
+    font-size: 11px;
   }
   .dialog-panel {
     padding: 23px 17px 15px;
@@ -2392,7 +2392,7 @@ label {
     border-radius: 18px;
   }
   .dialog-heading h2 {
-    font-size: 24px;
+    font-size: 26px;
   }
   .rule-content {
     gap: 12px;
@@ -2408,7 +2408,7 @@ label {
     height: 30px;
   }
   .rule-content p {
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.55;
     padding-left: 25px;
   }
@@ -2416,7 +2416,7 @@ label {
     gap: 9px;
   }
   .chat-message p {
-    font-size: 12px;
+    font-size: 15px;
   }
   .chat-message {
     padding: 9px 10px;
@@ -2424,7 +2424,7 @@ label {
   .clap-button {
     width: 140px;
     height: 140px;
-    font-size: 29px;
+    font-size: 31px;
   }
   .clap-dialog .dialog-panel {
     gap: 15px;
@@ -2439,15 +2439,15 @@ label {
     gap: 7px;
   }
   .winner-star {
-    font-size: 24px;
+    font-size: 26px;
     margin-bottom: 4px;
   }
   .scoreboard-heading h2 {
-    font-size: 20px;
+    font-size: 22px;
     margin-top: 4px;
   }
   .scoreboard-heading p {
-    font-size: 8px;
+    font-size: 11px;
     margin-top: 6px;
   }
   .scoreboard-list {
@@ -2469,17 +2469,17 @@ label {
     gap: 7px;
   }
   .site-header h1 {
-    font-size: 17px;
+    font-size: 19px;
   }
   .brand b {
-    font-size: 22px;
+    font-size: 24px;
   }
   .brand > svg {
     width: 31px;
     height: 31px;
   }
   .brand small {
-    font-size: 6px;
+    font-size: 9px;
   }
   .home-action {
     gap: 10px;
@@ -2493,13 +2493,13 @@ label {
     height: 18px;
   }
   .home-action b {
-    font-size: 17px;
+    font-size: 19px;
   }
   .home-action small {
-    font-size: 8px;
+    font-size: 11px;
   }
   .seat-copy strong {
-    font-size: 9px;
+    font-size: 12px;
   }
   .lobby-seat {
     gap: 5px;
@@ -2510,22 +2510,22 @@ label {
     margin-right: -5px;
   }
   .lobby-controls > .button {
-    font-size: 10px;
+    font-size: 13px;
   }
   .room-code > span {
-    font-size: 6px;
+    font-size: 9px;
   }
   .room-code {
-    font-size: 12px;
+    font-size: 15px;
   }
   .connection {
-    font-size: 8px;
+    font-size: 11px;
   }
   .dialog-heading h2 {
-    font-size: 23px;
+    font-size: 25px;
   }
   .rule-content p {
-    font-size: 10px;
+    font-size: 13px;
     line-height: 1.55;
   }
   .rule-content {
@@ -2535,7 +2535,7 @@ label {
     gap: 7px;
   }
   .home-footer button {
-    font-size: 9px;
+    font-size: 12px;
   }
 }
 @media (max-height: 500px) and (orientation: landscape) {
@@ -2571,14 +2571,14 @@ label {
     position: relative;
   }
   .home-heading h1 {
-    font-size: 38px;
+    font-size: 40px;
   }
   .home-heading .eyebrow {
-    font-size: 6px;
+    font-size: 9px;
     margin-bottom: 8px;
   }
   .home-heading h1 > span {
-    font-size: 8px;
+    font-size: 11px;
     margin-top: 7px;
   }
   .home-actions {
@@ -2593,17 +2593,17 @@ label {
     gap: 10px;
   }
   .home-action b {
-    font-size: 18px;
+    font-size: 20px;
   }
   .home-action small {
-    font-size: 8px;
+    font-size: 11px;
   }
   .home-footer {
     position: absolute;
     bottom: 11px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 8px;
+    font-size: 11px;
     white-space: nowrap;
   }
   .home-pig {
@@ -2624,7 +2624,7 @@ label {
     height: 160px;
   }
   .home-spark {
-    font-size: 20px;
+    font-size: 22px;
   }
   .form-screen {
     max-width: 650px;
@@ -2668,10 +2668,10 @@ label {
     top: 3px;
   }
   .game-preview strong {
-    font-size: 10px;
+    font-size: 13px;
   }
   .game-preview span {
-    font-size: 8px;
+    font-size: 11px;
     margin-top: 4px;
   }
   .game-preview small {
@@ -2684,19 +2684,19 @@ label {
     gap: 15px;
   }
   .form-settings legend {
-    font-size: 10px;
+    font-size: 13px;
     margin-bottom: 7px;
   }
   .form-settings legend small {
-    font-size: 8px;
+    font-size: 11px;
   }
   .segmented button {
     min-height: 44px;
-    font-size: 11px;
+    font-size: 14px;
     padding: 8px;
   }
   .setting-note {
-    font-size: 8px;
+    font-size: 11px;
     line-height: 1.4;
     margin-top: 6px;
     min-height: 0;
@@ -2729,7 +2729,7 @@ label {
     border-radius: 11px;
   }
   .find-screen > .name-field label {
-    font-size: 9px;
+    font-size: 12px;
     margin-bottom: 4px;
   }
   .find-screen > .name-field input {
@@ -2755,20 +2755,20 @@ label {
     gap: 9px;
   }
   .room-card-copy strong {
-    font-size: 12px;
+    font-size: 15px;
   }
   .room-card-copy > span {
-    font-size: 8px;
+    font-size: 11px;
     margin-top: 4px;
   }
   .room-card-copy small {
-    font-size: 8px;
+    font-size: 11px;
     margin-top: 4px;
   }
   .room-host-avatar {
     width: 31px;
     height: 31px;
-    font-size: 16px;
+    font-size: 18px;
     border-radius: 10px;
   }
   .room-join-arrow {
@@ -2779,14 +2779,14 @@ label {
     grid-row: 3;
   }
   .rooms-pagination > span {
-    font-size: 8px;
+    font-size: 11px;
   }
   .find-bottom {
     grid-column: 2;
     grid-row: 3;
   }
   .find-bottom > .button {
-    font-size: 11px;
+    font-size: 14px;
   }
   .join-code-form {
     grid-column: 2;
@@ -2803,14 +2803,14 @@ label {
     height: 42px;
   }
   .join-illustration > span {
-    font-size: 10px;
+    font-size: 13px;
     margin-left: 10px;
   }
   .code-field {
     padding: 14px;
   }
   .code-field label {
-    font-size: 10px;
+    font-size: 13px;
     margin-bottom: 6px;
   }
   .code-input {
@@ -2818,7 +2818,7 @@ label {
     min-height: 48px;
   }
   .code-field p {
-    font-size: 9px;
+    font-size: 12px;
     margin-top: 7px;
   }
   .join-code-form > .button {
@@ -2837,10 +2837,10 @@ label {
     gap: 4px 10px;
   }
   .lobby-intro h2 {
-    font-size: 17px;
+    font-size: 19px;
   }
   .lobby-intro > p {
-    font-size: 9px;
+    font-size: 12px;
   }
   .invite-button {
     min-height: 44px;
@@ -2858,13 +2858,13 @@ label {
   .lobby-seat .avatar {
     width: 29px;
     height: 29px;
-    font-size: 13px;
+    font-size: 16px;
   }
   .seat-copy strong {
-    font-size: 11px;
+    font-size: 14px;
   }
   .seat-copy > span {
-    font-size: 8px;
+    font-size: 11px;
     margin-top: 3px;
   }
   .empty-avatar {
@@ -2876,7 +2876,7 @@ label {
   }
   .lobby-controls > .button {
     min-height: 44px;
-    font-size: 11px;
+    font-size: 14px;
   }
   .play-area {
     display: grid;
@@ -2901,16 +2901,16 @@ label {
   .opponent .avatar-small {
     width: 23px;
     height: 23px;
-    font-size: 10px;
+    font-size: 13px;
   }
   .opponent > strong {
-    font-size: 9px;
+    font-size: 12px;
     flex: 1;
     max-width: 45%;
     min-width: 0;
   }
   .opponent-cards {
-    font-size: 11px;
+    font-size: 14px;
   }
   .opponent-cards > .bot-tag {
     display: inline-flex;
@@ -2926,7 +2926,7 @@ label {
     flex: none;
   }
   .table-status {
-    font-size: 10px;
+    font-size: 13px;
     top: 3px;
     min-height: 24px;
     gap: 7px;
@@ -2951,14 +2951,14 @@ label {
     height: 31px;
   }
   .card-back > span {
-    font-size: 8px;
+    font-size: 11px;
   }
   .deck-caption,
   .discard-caption {
-    font-size: 6px;
+    font-size: 9px;
   }
   .active-color {
-    font-size: 7px;
+    font-size: 10px;
     bottom: 5px;
   }
   .color-dot {
@@ -2966,7 +2966,7 @@ label {
     height: 10px;
   }
   .pending-badge {
-    font-size: 6px;
+    font-size: 9px;
     left: 5px;
     bottom: 5px;
     padding: 4px;
@@ -2979,7 +2979,7 @@ label {
     right: 0;
     top: 0;
     height: 26px;
-    font-size: 10px;
+    font-size: 13px;
   }
   .hand-toolbar > .chat-toggle {
     height: 26px;
@@ -2997,7 +2997,7 @@ label {
   }
   .turn-actions > .button {
     min-height: 44px;
-    font-size: 10px;
+    font-size: 13px;
     padding: 8px;
     gap: 6px;
   }
@@ -3010,14 +3010,14 @@ label {
     right: 6px;
     bottom: 7px;
     z-index: 5;
-    font-size: 8px;
+    font-size: 11px;
     min-height: 44px;
   }
   .silence-banner > span {
-    font-size: 8px;
+    font-size: 11px;
   }
   .silence-banner > button {
-    font-size: 8px;
+    font-size: 11px;
     min-height: 44px;
     padding: 5px;
   }
@@ -3034,18 +3034,18 @@ label {
     align-self: center;
   }
   .winner-star {
-    font-size: 29px;
+    font-size: 31px;
     margin-bottom: 5px;
   }
   .scoreboard-heading h2 {
-    font-size: 23px;
+    font-size: 25px;
     margin-top: 7px;
   }
   .scoreboard-heading h2 > span {
-    font-size: 12px;
+    font-size: 15px;
   }
   .scoreboard-heading p {
-    font-size: 9px;
+    font-size: 12px;
     line-height: 1.5;
     margin-top: 10px;
   }
@@ -3064,28 +3064,28 @@ label {
   .score-row .avatar-small {
     width: 23px;
     height: 23px;
-    font-size: 10px;
+    font-size: 13px;
   }
   .score-row strong {
-    font-size: 10px;
+    font-size: 13px;
   }
   .score-row > div > span {
-    font-size: 6px;
+    font-size: 9px;
     margin-top: 1px;
   }
   .score-points {
-    font-size: 16px;
+    font-size: 18px;
   }
   .score-points small {
-    font-size: 7px;
+    font-size: 10px;
   }
   .score-rank {
-    font-size: 9px;
+    font-size: 12px;
   }
   .svintus-explanation {
     grid-column: 1;
     grid-row: 2;
-    font-size: 8px;
+    font-size: 11px;
     padding-bottom: 50px;
   }
   .scoreboard > .button,
@@ -3094,7 +3094,7 @@ label {
     grid-row: 2;
     align-self: end;
     min-height: 44px;
-    font-size: 11px;
+    font-size: 14px;
   }
   .dialog-backdrop {
     padding: 9px 14px;
@@ -3106,14 +3106,14 @@ label {
     border-radius: 16px;
   }
   .dialog-heading h2 {
-    font-size: 23px;
+    font-size: 25px;
     margin-top: 6px;
   }
   .dialog-heading .eyebrow {
-    font-size: 7px;
+    font-size: 10px;
   }
   .dialog-heading > p {
-    font-size: 10px;
+    font-size: 13px;
     margin-top: 7px;
   }
   .rules-dialog .dialog-panel {
@@ -3126,12 +3126,12 @@ label {
     gap: 11px;
   }
   .rule-content p {
-    font-size: 11px;
+    font-size: 14px;
     line-height: 1.4;
     padding-left: 25px;
   }
   .rule-content p > span {
-    font-size: 8px;
+    font-size: 11px;
   }
   .rule-pagination {
     padding-top: 5px;
@@ -3141,7 +3141,7 @@ label {
   }
   .color-choice {
     min-height: 52px;
-    font-size: 11px;
+    font-size: 14px;
   }
   .color-options {
     gap: 9px;
@@ -3166,7 +3166,7 @@ label {
     justify-self: center;
     width: 140px;
     height: 140px;
-    font-size: 27px;
+    font-size: 29px;
     border-width: 5px;
   }
   .clap-responders {
@@ -3177,7 +3177,7 @@ label {
   .clap-responders .avatar-small {
     width: 26px;
     height: 26px;
-    font-size: 11px;
+    font-size: 14px;
   }
   .chat-dialog .dialog-panel {
     height: 100%;
@@ -3209,14 +3209,14 @@ label {
     padding: 9px 10px;
   }
   .chat-message p {
-    font-size: 12px;
+    font-size: 15px;
     line-height: 1.5;
   }
   .chat-silence {
     grid-column: 1;
     grid-row: 2;
     align-self: end;
-    font-size: 8px;
+    font-size: 11px;
   }
   .chat-pagination {
     grid-column: 1;
@@ -3234,7 +3234,7 @@ label {
     padding-right: 0;
   }
   .chat-dialog .dialog-heading h2 {
-    font-size: 21px;
+    font-size: 23px;
   }
 }
 .keyboard-open .game-preview,
@@ -3304,7 +3304,7 @@ label {
   display: none;
 }
 .chat-keyboard .dialog-heading h2 {
-  font-size: 18px;
+  font-size: 20px;
   margin: 0;
 }
 .chat-keyboard .segmented {
@@ -3317,14 +3317,14 @@ label {
   padding: 6px 9px;
 }
 .chat-keyboard .chat-message p {
-  font-size: 11px;
+  font-size: 14px;
   line-height: 1.35;
 }
 .chat-keyboard .chat-message time {
   display: none;
 }
 .chat-keyboard .chat-message strong {
-  font-size: 9px;
+  font-size: 12px;
 }
 .chat-keyboard .chat-pagination {
   min-height: 30px;
@@ -3335,7 +3335,7 @@ label {
   width: 44px;
 }
 .chat-keyboard .chat-silence {
-  font-size: 8px;
+  font-size: 11px;
 }
 .chat-keyboard .chat-messages {
   min-height: 0;
@@ -3367,7 +3367,7 @@ label {
   min-height: 44px;
 }
 .hand-round {
-  font-size: 9px;
+  font-size: 12px;
   white-space: nowrap;
   flex-shrink: 0;
   padding-left: 10px;
@@ -3389,11 +3389,11 @@ label {
   max-width: 92px;
 }
 .game-table .silence-banner > span {
-  font-size: 7px;
+  font-size: 10px;
   white-space: nowrap;
 }
 .game-table .silence-banner > button {
-  font-size: 8px;
+  font-size: 11px;
   min-height: 44px;
   padding: 3px 6px;
 }
@@ -3401,7 +3401,7 @@ label {
   left: 10px;
   transform: none;
   max-width: 82px;
-  font-size: 8px;
+  font-size: 11px;
 }
 .home-footer button {
   min-height: 44px;
@@ -3432,20 +3432,20 @@ label {
     padding-top: 3px;
   }
   .game-table .silence-banner > span {
-    font-size: 6px;
+    font-size: 9px;
   }
   .game-table .silence-banner > button {
-    font-size: 7px;
+    font-size: 10px;
     padding: 2px 4px;
   }
   .game-table:has(.silence-banner) .active-color {
-    font-size: 6px;
+    font-size: 9px;
     left: 6px;
     bottom: 5px;
     max-width: 62px;
   }
   .hand-round {
-    font-size: 8px;
+    font-size: 11px;
   }
 }
 @media (max-height: 500px) and (orientation: landscape) {
@@ -3457,7 +3457,7 @@ label {
   .game-table:has(.silence-banner) .active-color {
     left: 5px;
     bottom: 5px;
-    font-size: 6px;
+    font-size: 9px;
   }
   .room-toolbar {
     min-height: 44px;
@@ -3467,7 +3467,7 @@ label {
     min-height: 44px;
   }
   .header-game-brand {
-    font-size: 22px;
+    font-size: 24px;
   }
   .header-tools {
     gap: 4px;
