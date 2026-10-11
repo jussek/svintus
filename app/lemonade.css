@@ -1,0 +1,404 @@
+/* Lemonade: original illustrated mascot, sea glass, citrus and warm paper. */
+:root {
+  --green-deep: #063f50;
+  --green: #087f85;
+  --felt: #168c8c;
+  --cream: #fff8e8;
+  --cream-muted: #cdebec;
+  --orange: #ff9873;
+  --yellow: #ffe282;
+  --ink: #153d49;
+  --line: #b4efed30;
+}
+html {
+  background: #075769;
+}
+body {
+  font-family: ui-rounded, "Arial Rounded MT Bold", Arial, sans-serif;
+}
+.app {
+  background:
+    radial-gradient(ellipse at 0 0, #20c2bf55, transparent 52%),
+    radial-gradient(ellipse at 100% 60%, #00949f44, transparent 62%),
+    linear-gradient(155deg, #075769, #063c50);
+}
+.app[data-screen="home"] {
+  background:
+    radial-gradient(ellipse at 50% 35%, #34d4cb66, transparent 62%),
+    radial-gradient(ellipse at 0 0, #ffe69422, transparent 40%),
+    linear-gradient(160deg, #129f9f, #07718a 66%, #07566f);
+}
+.app::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(#fff8e80b 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.app-shell {
+  position: relative;
+}
+.brand b {
+  letter-spacing: -0.8px;
+}
+.icon-button {
+  background: #ffffff0f;
+  border: 1px solid #baf8f21a;
+  box-shadow: inset 0 1px 0 #ffffff0c;
+}
+.home-pig {
+  width: min(90%, 320px);
+  height: 100%;
+  max-height: 350px;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  z-index: 1;
+}
+.home-pig img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 14px #00364733);
+}
+.home-orbit {
+  background: #fff6dc09;
+  border-color: #bcffea22;
+  box-shadow:
+    0 0 0 22px #b8f8e909,
+    0 0 0 44px #b8f8e905;
+}
+.home-card {
+  border-color: #fff9de;
+  box-shadow: 0 10px 24px #003e5255;
+}
+.home-card-left {
+  transform: translate(-147%, -60%) rotate(-20deg);
+}
+.home-card-right {
+  transform: translate(47%, -60%) rotate(20deg);
+}
+.home-heading h1 {
+  color: #fff8e8;
+  text-shadow:
+    0 3px 0 #ffab7a,
+    0 6px 0 #07566b;
+  letter-spacing: -2px;
+}
+.home-heading .eyebrow {
+  color: #d1ffef;
+}
+.home-action {
+  border: 1px solid #ffffff55;
+  border-radius: 22px;
+}
+.home-action-find {
+  background: linear-gradient(160deg, #ffad71, #ff765e);
+  color: #123f4b;
+  box-shadow:
+    0 5px 0 #bb5341,
+    inset 0 1px 0 #ffe9c299,
+    0 12px 22px #003b482a;
+}
+.home-action-create {
+  background: linear-gradient(160deg, #0b788b, #07566e);
+  color: #fff8e8;
+  box-shadow:
+    0 5px 0 #066072,
+    inset 0 1px 0 #dcfff688,
+    0 12px 22px #003b482a;
+}
+.home-action-icon {
+  background: #ffffff20;
+  border-radius: 50%;
+}
+.home-action small {
+  opacity: 1;
+}
+.home-footer {
+  color: #c8f0ea;
+}
+.home-footer button {
+  color: #ecfff7;
+}
+.button {
+  border-radius: 15px;
+}
+.button-orange {
+  background: linear-gradient(145deg, #ffae7b, #ff8b6c);
+  box-shadow:
+    0 4px 0 #b75847,
+    inset 0 1px 0 #ffe0b677;
+}
+.button-outline {
+  border-color: #caeeee55;
+  background: #b4ebed0d;
+}
+.form-panel,
+.dialog-panel {
+  background: #fff8e8;
+  border-color: #fffef5;
+  box-shadow: 0 12px 36px #002f4540;
+}
+.game-preview {
+  background: #e2f0e9;
+  border-color: #c1dfd7;
+}
+.game-preview span,
+.game-preview small {
+  color: #4c7276;
+}
+.form-settings {
+  grid-template-columns: minmax(0, 1fr);
+}
+.segmented button.selected {
+  background: #d1efe8;
+  border-color: #279a9d;
+  box-shadow: 0 3px 0 #15798033;
+}
+.setting-note {
+  color: #547982;
+}
+.public-room-card {
+  background: #fff8e8;
+  color: #153d49;
+  border-color: #fff3d8;
+  border-radius: 16px;
+}
+.room-host-avatar {
+  background: #ffe39c;
+  color: #165565;
+}
+.public-room-card:hover:not(:disabled) {
+  background: #fff0d2;
+  border-color: #ffe39c;
+}
+.room-card-copy > span,
+.room-card-copy small {
+  color: #4a7278;
+}
+.room-join-arrow {
+  color: #07657f;
+}
+.lobby-seat {
+  background: #b1f5f00b;
+  border-color: #b1f5f025;
+  box-shadow: inset 0 1px 0 #d6fff00c;
+}
+.lobby-seat.occupied {
+  background: #fff8e8;
+  color: #153d49;
+  border-color: #fff3d8;
+  box-shadow: 0 4px 0 #04374633;
+}
+.lobby-seat.occupied .seat-copy > span,
+.lobby-seat.occupied .bot-tag {
+  color: #4a7278;
+}
+.lobby-seat.occupied .seat-check {
+  color: #087f85;
+}
+.lobby-seat.occupied .bot-tag {
+  border-color: #4a727855;
+}
+.lobby-seat.occupied .remove-bot-button {
+  color: #9a3d2d;
+  background: #ffe2cf;
+  border-color: #edbfa6;
+}
+.avatar {
+  border: 2px solid #fff8e8aa;
+  box-shadow: 0 3px 8px #002f4022;
+}
+.opponent {
+  background: #fff8e8;
+  border: 1px solid #ffefc6;
+  color: #153d49;
+  box-shadow: 0 4px 0 #04374633;
+}
+.opponent > strong {
+  color: #153d49;
+}
+.opponent-cards {
+  color: #456e74;
+}
+.opponent-cards .bot-tag {
+  border-color: #49777b55;
+  color: #456e74;
+}
+.opponent.opponent-active {
+  border-color: #ffe282;
+  box-shadow: 0 0 0 2px #ffe28266;
+}
+.game-table {
+  background:
+    radial-gradient(ellipse at 50% 25%, #57cbb544, transparent 70%),
+    repeating-linear-gradient(35deg, #ffffff03 0 1px, transparent 1px 5px),
+    #147e87;
+  border-color: #5ab9b5;
+  box-shadow:
+    inset 0 0 0 2px #b5efcc22,
+    inset 0 0 40px #074e6633,
+    0 5px 0 #04384677;
+}
+.my-turn-table {
+  border-color: #ffe39b;
+  box-shadow:
+    inset 0 0 0 2px #fff4c322,
+    0 0 0 2px #ffe39b33,
+    0 5px 0 #04384677;
+}
+.game-table[data-drop-active="true"] {
+  border-color: #fff3bc;
+  box-shadow:
+    0 0 0 4px #ffebaa55,
+    inset 0 0 35px #fff3bc20;
+}
+.table-brand {
+  color: #d1fbe6;
+  opacity: 0.07;
+}
+.card-back {
+  background:
+    repeating-linear-gradient(45deg, #168d9522 0 3px, #fff8e807 3px 6px),
+    #07536e;
+  border-color: #ffefc2;
+  box-shadow:
+    0 4px 0 #093d4e,
+    0 10px 14px #002b4033;
+}
+.deck-wrap .card-back svg {
+  color: #ffe39c;
+}
+.score-row {
+  background: #fff8e8;
+  color: #153d49;
+  border-color: #fff0d5;
+}
+.score-leader {
+  background: #ffe8a1;
+  border-color: #ffe39b;
+}
+.score-svintus {
+  background: #ffe4d1;
+  border-color: #ffaf87;
+}
+.score-points {
+  color: #153d49;
+}
+.score-row > div > span {
+  color: #a94839;
+}
+.score-leader > div > span {
+  color: #467340;
+}
+.score-rank,
+.score-points small {
+  color: #4a7278;
+}
+.svintus-explanation {
+  color: #bfe2de;
+}
+.chat-message {
+  background: #eaf2ec;
+  border-color: #c9e4dc;
+}
+.clap-button {
+  background: #ff9975;
+  border-color: #ffc1a0;
+  box-shadow: 0 7px 0 #c36d59;
+}
+.clap-button.clap-done {
+  background: #bde6d4;
+  border-color: #d6f4df;
+}
+.dialog-backdrop {
+  background: #002c4177;
+  backdrop-filter: blur(8px);
+}
+
+/* Compositor-friendly motion; gestures and server actions never wait for it. */
+.home-action,
+.button,
+.icon-button,
+.game-table,
+.opponent,
+.public-room-card {
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 260ms ease,
+    background-color 260ms ease,
+    border-color 260ms ease,
+    opacity 180ms ease;
+}
+.home-screen,
+.form-screen,
+.find-screen,
+.lobby,
+.scoreboard {
+  animation: screen-arrive 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.dialog-panel {
+  animation: dialog-arrive 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.dialog-backdrop {
+  animation: backdrop-arrive 180ms ease both;
+}
+.discard-wrap > .card-picture {
+  animation: card-arrive 340ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.home-action:active,
+.button:active:not(:disabled) {
+  transform: translateY(3px) scale(0.985);
+}
+@keyframes screen-arrive {
+  from {
+    opacity: 0;
+    transform: scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes dialog-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes backdrop-arrive {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes card-arrive {
+  from {
+    opacity: 0.5;
+    transform: translateY(-12px) rotate(-7deg) scale(1.08);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0) scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

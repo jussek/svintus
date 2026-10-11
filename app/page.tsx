@@ -18,7 +18,6 @@ type PublicRoom = {
   hostName: string;
   playerCount: number;
   botCount: number;
-  turnSeconds: number;
   createdAt: number | string;
 };
 type Session = { code: string; token: string; playerId: string };
@@ -59,7 +58,7 @@ const gamePhase = (game: Game | null) =>
         game.status,
         game.round,
         game.turnIndex,
-        game.turnDeadline,
+        game.colorChoicePlayerId,
         game.topCard?.id,
         game.clap?.id,
       ].join(":")
@@ -308,16 +307,16 @@ const rulePages = [
     icon: "hand" as const,
     paragraphs: [
       "Тихохрюн: все молчат до следующей карты его автора. Сообщение в чате или кнопка нарушения тишины снимает запрет и даёт 2 карты.",
-      "Хлопкопыт: все нажимают «Хлоп!». Последний получает 2 карты. Не успевшие до конца времени получают по 2 карты.",
+      "Хлопкопыт: все нажимают «Хлоп!». Игра ждёт всех участников. Последний получает 2 карты.",
       "Боты играют по тем же правилам, не видят чужих рук и реагируют самостоятельно. Тишину в вашем созвоне контролируйте сами.",
     ],
   },
   {
-    title: "Не мешкай!",
-    badge: "Темп и штрафы",
+    title: "Играем в своём темпе",
+    badge: "Ходы и штрафы",
     icon: "refresh" as const,
     paragraphs: [
-      "На ход — 2, 3 или 5 секунд: выбирает хозяин комнаты. Просрочил или сходил неправильно — 2 карты и пропуск хода.",
+      "Ограничения времени нет. За неправильный ход — 2 карты и пропуск хода. Неправильно сыгранная карта остаётся у тебя.",
       "Накопленный Хапёж всё равно нужно принять. Кнопки помогают избежать неверного хода, а сервер проверяет каждое действие.",
       "Колода закончилась? Стопка перемешается заново, кроме верхней карты. Игра продолжается до первой пустой руки.",
     ],
@@ -432,7 +431,6 @@ export default function Home() {
   const [viewportHeight, setViewportHeight] = useState(844);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "join">("create");
-  const [turnSeconds, setTurnSeconds] = useState(5);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -442,7 +440,6 @@ export default function Home() {
   const [chatText, setChatText] = useState("");
   const [wild, setWild] = useState<Card | null>(null);
   const [connected, setConnected] = useState(false);
-  const [now, setNow] = useState(Date.now());
   const polling = useRef(false);
   const acting = useRef(false);
   const revision = useRef(0);
@@ -476,11 +473,6 @@ export default function Home() {
     }
   }, []);
 
-  useEffect(() => {
-    if (game?.status !== "playing") return;
-    const timer = window.setInterval(() => setNow(Date.now()), 100);
-    return () => window.clearInterval(timer);
-  }, [game?.status]);
   useEffect(() => {
     if (!notice) return;
     const timer = window.setTimeout(() => setNotice(""), 3500);
@@ -711,7 +703,7 @@ export default function Home() {
     try {
       const body =
         mode === "create"
-          ? { name: name.trim(), turnSeconds, isPublic }
+          ? { name: name.trim(), isPublic }
           : { name: name.trim(), joinToken: getJoinToken(targetCode) };
       const response = await fetch(
         mode === "create" ? "/api/rooms" : `/api/rooms/${targetCode}/join`,
@@ -818,12 +810,12 @@ export default function Home() {
     setView("home");
     window.history.replaceState(null, "", window.location.pathname);
   };
-  const isTurn = !!game && game.players[game.turnIndex]?.id === game.meId;
+  const isTurn =
+    !!game &&
+    !game.colorChoicePlayerId &&
+    game.players[game.turnIndex]?.id === game.meId;
   const isHost = !!game && game.hostId === game.meId;
   const currentPlayer = game?.players[game.turnIndex];
-  const remaining = game?.turnDeadline
-    ? Math.max(0, game.turnDeadline - now)
-    : 0;
   const clapResponded = !!game?.clap?.responded.includes(game.meId);
   const me = game?.players.find((player) => player.id === game.meId);
   const inspectedPlayer = game?.players.find(
@@ -972,7 +964,13 @@ export default function Home() {
                 alt=""
               />
               <div className="home-pig">
-                <Pig />
+                <img
+                  src="/art/lemonade-pig.webp"
+                  alt=""
+                  width="640"
+                  height="640"
+                  fetchPriority="high"
+                />
               </div>
               <span className="home-card-dot" />
             </div>
@@ -1051,25 +1049,6 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="form-settings">
-                  <fieldset>
-                    <legend>
-                      Время на ход <small>Не мешкай!</small>
-                    </legend>
-                    <div className="segmented timer-options">
-                      {[2, 3, 5].map((seconds) => (
-                        <button
-                          type="button"
-                          key={seconds}
-                          aria-pressed={turnSeconds === seconds}
-                          className={turnSeconds === seconds ? "selected" : ""}
-                          disabled={!!busy}
-                          onClick={() => setTurnSeconds(seconds)}
-                        >
-                          {seconds} сек
-                        </button>
-                      ))}
-                    </div>
-                  </fieldset>
                   <fieldset>
                     <legend>Доступ к столу</legend>
                     <div className="segmented">
@@ -1249,8 +1228,7 @@ export default function Home() {
                           <span className="room-card-copy">
                             <strong>Стол {room.hostName}</strong>
                             <span>
-                              {room.playerCount} / 6 участников ·{" "}
-                              {room.turnSeconds} сек
+                              {room.playerCount} / 6 участников
                               {room.botCount > 0
                                 ? ` · ${room.botCount} бот`
                                 : ""}
@@ -1345,7 +1323,7 @@ export default function Home() {
               </button>
               <span className={`connection ${connected ? "is-connected" : ""}`}>
                 <i />
-                {connected ? `${game.turnSeconds} сек на ход` : "Нет связи…"}
+                {connected ? "За столом" : "Нет связи…"}
               </span>
               {game.status !== "lobby" && (
                 <span className="round-label">Раунд {game.round}</span>
@@ -1619,28 +1597,12 @@ export default function Home() {
                   </span>
                   <div className="table-status" role="status">
                     <span>
-                      {isTurn
-                        ? "Твой ход!"
-                        : `Ходит ${currentPlayer?.name || "игрок"}`}
+                      {game.colorChoicePlayerId
+                        ? "Раздающий выбирает цвет"
+                        : isTurn
+                          ? "Твой ход!"
+                          : `Ходит ${currentPlayer?.name || "игрок"}`}
                     </span>
-                    {game.turnDeadline && !game.clap && (
-                      <div
-                        className={`turn-timer ${remaining < 1200 ? "timer-urgent" : ""}`}
-                        aria-label={`Осталось ${Math.ceil(remaining / 1000)} секунд`}
-                      >
-                        <svg viewBox="0 0 40 40" aria-hidden="true">
-                          <circle cx="20" cy="20" r="17" />
-                          <circle
-                            cx="20"
-                            cy="20"
-                            r="17"
-                            pathLength="100"
-                            strokeDasharray={`${Math.max(0, Math.min(100, (remaining / (game.turnSeconds * 1000)) * 100))} 100`}
-                          />
-                        </svg>
-                        <b>{Math.ceil(remaining / 1000)}</b>
-                      </div>
-                    )}
                   </div>
                   <div className="table-cards">
                     <div className="deck-wrap">
@@ -1664,7 +1626,12 @@ export default function Home() {
                       </span>
                     </div>
                     <div className="discard-wrap">
-                      {game.topCard && <CardPicture card={game.topCard} />}
+                      {game.topCard && (
+                        <CardPicture
+                          key={game.topCard.id}
+                          card={game.topCard}
+                        />
+                      )}
                       <span className="discard-caption">
                         {game.topCard?.kind === "number"
                           ? `Верхняя · ${game.topCard.value}`
@@ -1713,6 +1680,7 @@ export default function Home() {
                   busy={
                     !!busy ||
                     !!wild ||
+                    !!game.colorChoicePlayerId ||
                     rulesOpen ||
                     chatOpen ||
                     !!inspectedPlayer
@@ -1827,16 +1795,20 @@ export default function Home() {
           </div>
         </Dialog>
       )}
-      {wild && game && (
+      {game && (wild || game.colorChoicePlayerId === game.meId) && (
         <Dialog
           title="Полисвин: выбери цвет"
-          onClose={() => setWild(null)}
+          onClose={wild ? () => setWild(null) : undefined}
           className="color-dialog"
         >
           <div className="dialog-heading">
             <span className="eyebrow">Полисвин</span>
             <h2>Выбери цвет</h2>
-            <p>Какой цвет придётся сыграть следующему?</p>
+            <p>
+              {wild
+                ? "Какой цвет придётся сыграть следующему?"
+                : "Первый Полисвин: цвет выбирает раздающий."}
+            </p>
           </div>
           <div className="color-options">
             {colors.map((color) => (
@@ -1844,7 +1816,11 @@ export default function Home() {
                 key={color}
                 className={`color-choice color-${color}`}
                 disabled={!!busy}
-                onClick={() => void playCard(wild, color)}
+                onClick={() =>
+                  void (wild
+                    ? playCard(wild, color)
+                    : act({ type: "choose_color", color }))
+                }
               >
                 <span />
                 {colorNames[color]}

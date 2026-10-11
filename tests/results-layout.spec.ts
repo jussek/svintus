@@ -70,6 +70,15 @@ test("six-player results with maximum-length names and tied scores keep every ro
         await expect(
           page.locator('[data-testid="results-screen"]'),
         ).toBeVisible();
+        await page
+          .locator(".scoreboard")
+          .evaluate((element) =>
+            Promise.all(
+              element
+                .getAnimations({ subtree: true })
+                .map((animation) => animation.finished.catch(() => undefined)),
+            ),
+          );
         await expect(page.locator(".score-row")).toHaveCount(6);
         await expect(page.locator(".score-svintus")).toHaveCount(tied ? 5 : 1);
         await expect(page.locator(".scoreboard-heading h2")).toContainText(

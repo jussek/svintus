@@ -216,6 +216,17 @@
   outline-offset: 1px;
 }
 
+.sv-hand-flight {
+  position: fixed;
+  width: 100px;
+  height: 139px;
+  object-fit: cover;
+  border: 2px solid #fff8e8;
+  border-radius: 9px;
+  box-shadow: 0 12px 22px #002b4055;
+  z-index: 70;
+  pointer-events: none;
+}
 .sv-hand-floating {
   --sv-floating-width: 86px;
   --sv-preview-min-y: 120px;

@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -64,6 +65,7 @@ function playable(card: Card, game: PublicGame): boolean {
   if (
     game.status !== "playing" ||
     game.clap ||
+    game.colorChoicePlayerId ||
     !game.hand.some((owned) => owned.id === card.id)
   )
     return false;
@@ -93,7 +95,7 @@ function context(game: PublicGame): string {
     game.round,
     game.status,
     game.turnIndex,
-    game.turnDeadline,
+    game.colorChoicePlayerId,
     game.topCard?.id,
     game.activeColor,
     game.drawnCardId,
@@ -128,6 +130,10 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
   const submitting = useRef(false);
   const highlightedTarget = useRef<HTMLElement | null>(null);
   const mounted = useRef(true);
+  const handElement = useRef<HTMLDivElement | null>(null);
+  const previousPositions = useRef(new Map<string, { x: number; y: number }>());
+  const moveFrame = useRef<number | null>(null);
+  const flights = useRef(new Set<HTMLImageElement>());
   const [floating, setFloating] = useState<FloatingCard | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [page, setPage] = useState({
@@ -162,6 +168,10 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
   };
 
   const cancelGesture = (suppress = true) => {
+    if (moveFrame.current !== null) {
+      cancelAnimationFrame(moveFrame.current);
+      moveFrame.current = null;
+    }
     const current = gesture.current;
     gesture.current = null;
     if (current) {
@@ -176,19 +186,61 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
 
   const canSubmit = (card: Card) => {
     const current = latest.current;
-    return (
-      !current.busy &&
-      !submitting.current &&
-      playable(card, current.game) &&
-      (current.game.turnDeadline === null ||
-        Date.now() < current.game.turnDeadline)
-    );
+    return !current.busy && !submitting.current && playable(card, current.game);
   };
 
-  const submit = (id: string) => {
+  const submit = (id: string, origin?: { x: number; y: number }) => {
     const card = latest.current.game.hand.find((owned) => owned.id === id);
     if (!card || !canSubmit(card)) return;
     submitting.current = true;
+    // Visual feedback never delays the authoritative request or one-card race.
+    if (
+      card.kind !== "wild" &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      const source = Array.from(
+        handElement.current?.querySelectorAll<HTMLButtonElement>(
+          "button[data-card-id]",
+        ) ?? [],
+      )
+        .find((element) => element.dataset.cardId === id)
+        ?.getBoundingClientRect();
+      const target = latest.current.dropTargetRef.current
+        ?.querySelector(".discard-wrap img")
+        ?.getBoundingClientRect();
+      if (source && target) {
+        const image = document.createElement("img");
+        image.src = cardImage(card);
+        image.alt = "";
+        image.setAttribute("aria-hidden", "true");
+        image.className = "sv-hand-flight";
+        document.body.append(image);
+        flights.current.add(image);
+        const animation = image.animate(
+          [
+            {
+              left: `${origin?.x ?? source.x + source.width / 2}px`,
+              top: `${origin?.y ?? source.y + source.height / 2}px`,
+              transform: origin
+                ? "translate(-50%, -86%) rotate(-6deg)"
+                : "translate(-50%, -50%) rotate(-6deg)",
+              opacity: 1,
+            },
+            {
+              left: `${target.x + target.width / 2}px`,
+              top: `${target.y + target.height / 2}px`,
+              transform: "translate(-50%, -50%) rotate(0) scale(.8)",
+              opacity: 0,
+            },
+          ],
+          { duration: 360, easing: "cubic-bezier(.2,.8,.2,1)", fill: "both" },
+        );
+        animation.onfinish = () => {
+          image.remove();
+          flights.current.delete(image);
+        };
+      }
+    }
     try {
       const result = latest.current.onPlay(card);
       void Promise.resolve(result)
@@ -214,6 +266,11 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
     return () => {
       mounted.current = false;
       cancelGesture();
+      for (const image of flights.current) {
+        for (const animation of image.getAnimations()) animation.cancel();
+        image.remove();
+      }
+      flights.current.clear();
       window.removeEventListener("blur", cancel);
       window.removeEventListener("resize", cancel);
       window.visualViewport?.removeEventListener("resize", cancel);
@@ -256,6 +313,43 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
     // Only a newly drawn card should move the page automatically.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.drawnCardId]);
+
+  useLayoutEffect(() => {
+    const positions = new Map<string, { x: number; y: number }>();
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    for (const element of handElement.current?.querySelectorAll<HTMLElement>(
+      "[data-card-id]",
+    ) ?? []) {
+      const id = element.dataset.cardId!;
+      const rect = element.getBoundingClientRect();
+      positions.set(id, { x: rect.x, y: rect.y });
+      if (reduced || gesture.current) continue;
+      const before = previousPositions.current.get(id);
+      if (
+        before &&
+        (Math.abs(before.x - rect.x) > 1 || Math.abs(before.y - rect.y) > 1)
+      ) {
+        element.animate(
+          [
+            { translate: `${before.x - rect.x}px ${before.y - rect.y}px` },
+            { translate: "0 0" },
+          ],
+          { duration: 280, easing: "cubic-bezier(.2,.8,.2,1)" },
+        );
+      } else if (!before) {
+        element.animate(
+          [
+            { opacity: 0, translate: "0 12px" },
+            { opacity: 1, translate: "0 0" },
+          ],
+          { duration: 260, easing: "cubic-bezier(.2,.8,.2,1)" },
+        );
+      }
+    }
+    previousPositions.current = positions;
+  }, [handIds, start]);
 
   const pointerDown = (event: PointerEvent<HTMLButtonElement>, card: Card) => {
     if (
@@ -312,7 +406,26 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
       target.setAttribute("data-drop-active", "true");
       highlightedTarget.current = target;
     }
-    setFloating({ card, x: current.x, y: current.y, allowed, overTable });
+    if (moveFrame.current === null) {
+      moveFrame.current = requestAnimationFrame(() => {
+        moveFrame.current = null;
+        if (gesture.current === current)
+          setFloating({
+            card,
+            x: current.x,
+            y: current.y,
+            allowed,
+            overTable:
+              allowed &&
+              current.startY - current.y >= 24 &&
+              inDropZone(
+                latest.current.dropTargetRef.current,
+                current.x,
+                current.y,
+              ),
+          });
+      });
+    }
   };
 
   const pointerUp = (event: PointerEvent<HTMLButtonElement>) => {
@@ -336,7 +449,7 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
       current.context === latestContext &&
       (tableDrop || upwardSwipe)
     )
-      submit(current.cardId);
+      submit(current.cardId, { x: event.clientX, y: event.clientY });
   };
 
   const changePage = (direction: -1 | 1) => {
@@ -355,6 +468,7 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
   const isTurn = game.players[game.turnIndex]?.id === game.meId;
   return (
     <div
+      ref={handElement}
       className={`sv-hand ${hasPages ? "sv-hand-paged" : ""}`}
       data-testid="card-hand"
       role="group"

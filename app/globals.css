@@ -1228,40 +1228,6 @@ label {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.turn-timer {
-  position: relative;
-  width: 31px;
-  height: 31px;
-  flex-shrink: 0;
-  color: var(--yellow);
-}
-.turn-timer svg {
-  position: absolute;
-  inset: 0;
-  width: 31px;
-  height: 31px;
-  transform: rotate(-90deg);
-}
-.turn-timer circle {
-  fill: none;
-  stroke: #ffffff18;
-  stroke-width: 3;
-}
-.turn-timer circle + circle {
-  stroke: currentColor;
-  stroke-linecap: round;
-}
-.turn-timer b {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-}
-.timer-urgent {
-  color: #ffad86;
-}
 .table-cards {
   position: relative;
   display: flex;
@@ -2064,11 +2030,6 @@ label {
   .table-status {
     font-size: 14px;
   }
-  .turn-timer,
-  .turn-timer svg {
-    width: 36px;
-    height: 36px;
-  }
   .table-cards {
     gap: 35px;
   }
@@ -2316,14 +2277,6 @@ label {
     font-size: 10px;
     min-height: 24px;
     gap: 8px;
-  }
-  .turn-timer,
-  .turn-timer svg {
-    width: 25px;
-    height: 25px;
-  }
-  .turn-timer b {
-    font-size: 10px;
   }
   .deck-wrap,
   .discard-wrap {
@@ -2977,14 +2930,6 @@ label {
     top: 3px;
     min-height: 24px;
     gap: 7px;
-  }
-  .turn-timer,
-  .turn-timer svg {
-    width: 25px;
-    height: 25px;
-  }
-  .turn-timer b {
-    font-size: 10px;
   }
   .table-cards {
     gap: 21px;
