@@ -42,7 +42,19 @@ test("card flight submits immediately once and reduced motion disables decorativ
       reducedMotion: reduced ? "reduce" : "no-preference",
     });
     try {
-      await context.addInitScript(() =>
+      await context.addInitScript(() => {
+        // Hold each short decorative flight at creation so the test can inspect
+        // its start/end poses even when other browser workers are busy.
+        const animate = Element.prototype.animate;
+        Element.prototype.animate = function (
+          this: Element,
+          keyframes: Keyframe[] | PropertyIndexedKeyframes | null,
+          options?: number | KeyframeAnimationOptions,
+        ) {
+          const animation = animate.call(this, keyframes, options);
+          if (this.classList.contains('sv-hand-flight')) animation.pause();
+          return animation;
+        };
         localStorage.setItem(
           "svintus:session:MOTION",
           JSON.stringify({
@@ -50,8 +62,8 @@ test("card flight submits immediately once and reduced motion disables decorativ
             token: "motion-fixture",
             playerId: "motion-me",
           }),
-        ),
-      );
+        );
+      });
       await context.route("**/api/rooms/MOTION", (route) =>
         route.fulfill({ json: { game: publicGame(state, "motion-me") } }),
       );
@@ -98,6 +110,7 @@ test("card flight submits immediately once and reduced motion disables decorativ
           await expect(returning).toHaveCount(0);
         } else {
           await expect(returning).toHaveCount(1);
+          await expect.poll(() => returning.evaluate(element => element.getAnimations().length)).toBe(1);
           await returning.evaluate(element => {
             const animation = element.getAnimations()[0];
             animation.pause();
@@ -124,7 +137,12 @@ test("card flight submits immediately once and reduced motion disables decorativ
       await card.focus();
       await card.press("Enter");
       if (reduced) await expect(page.locator(".sv-hand-flight")).toHaveCount(0);
-      else await expect(page.locator(".sv-hand-flight")).toHaveCount(1);
+      else {
+        await expect(page.locator(".sv-hand-flight")).toHaveCount(1);
+        await expect.poll(() => page.locator('.sv-hand-flight[data-motion="play"]').evaluate(element =>
+          element.getAnimations().length
+        )).toBe(1);
+      }
       await expect(page.locator(".discard-wrap img")).toHaveAttribute(
         "src",
         "/cards/red-2.jpg",

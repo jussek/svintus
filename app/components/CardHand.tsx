@@ -408,7 +408,7 @@ export default function CardHand({ game, busy, onPlay, dropTargetRef }: Props) {
         element.animate(
           [
             { opacity: 0, translate: "0 12px" },
-            { opacity: 1, translate: "0 0" },
+            { opacity: getComputedStyle(element).opacity, translate: "0 0" },
           ],
           { duration: 260, easing: "cubic-bezier(.2,.8,.2,1)" },
         );

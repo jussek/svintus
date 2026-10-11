@@ -72,17 +72,41 @@
 }
 
 .sv-hand .sv-hand-card.playable {
-  border-color: #f8e97d;
+  border-color: #fff1a4;
   box-shadow:
-    0 0 0 1px #f3df7877,
-    0 4px 9px #0005;
+    0 0 0 2px #e4a931,
+    0 0 16px #ffc85799,
+    0 5px 10px #153b4955;
   opacity: 1;
+}
+.sv-hand .sv-hand-card.playable::after {
+  content: "✓";
+  position: absolute;
+  top: 29px;
+  left: 4px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #ceffac;
+  color: #194d2b;
+  border: 1px solid #ffffff;
+  box-shadow: 0 2px 4px #163b4944;
+  font: 800 14px/1 Arial, sans-serif;
+  pointer-events: none;
 }
 
 .sv-hand .sv-hand-card.unplayable {
   filter: none;
-  opacity: 0.82;
+  opacity: 0.62;
   cursor: default;
+}
+.sv-hand .sv-hand-card.unplayable img {
+  filter: saturate(.55) brightness(.82);
+}
+.sv-hand .sv-hand-card.sv-hand-selected img {
+  filter: none;
 }
 
 .sv-hand .sv-hand-card:disabled {

@@ -816,6 +816,7 @@ export default function Home() {
     game.players[game.turnIndex]?.id === game.meId;
   const isHost = !!game && game.hostId === game.meId;
   const currentPlayer = game?.players[game.turnIndex];
+  const showMyTurn = isTurn && !game?.clap;
   const actingPlayerId = game?.clap ? null : game?.colorChoicePlayerId ?? currentPlayer?.id;
   const clapResponded = !!game?.clap?.responded.includes(game.meId);
   const me = game?.players.find((player) => player.id === game.meId);
@@ -1598,9 +1599,14 @@ export default function Home() {
                     СВИНТУС
                   </span>
                   <div className="table-status" role="status">
-                    <span>
+                    <span
+                      key={showMyTurn ? `my-turn-${game.round}` : game.clap ? "clap" : currentPlayer?.id}
+                      className={showMyTurn ? "turn-callout" : ""}
+                    >
                       {game.colorChoicePlayerId
                         ? "Раздающий выбирает цвет"
+                        : game.clap
+                          ? "Все хлопают!"
                         : isTurn
                           ? "Твой ход!"
                           : `Ходит ${currentPlayer?.name || "игрок"}`}
